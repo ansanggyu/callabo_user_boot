@@ -12,13 +12,13 @@ spring:
       client:
         registration:
           kakao:
-            client-id: f994e344488a4e0375f6f9580b14f66d
+            client-id:
             redirect-uri: http://localhost:5173/customer/kakao
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
             scope: profile_nickname, profile_image, account_email
             client-name: Kakao
-            client-secret: 85st9Asm7o8G1gPSYIGOio9Sb6hKl1RZ
+            client-secret:
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
