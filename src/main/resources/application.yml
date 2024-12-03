@@ -1,1 +1,64 @@
-spring.application.name=callabo_user_boot
+spring:
+  application:
+    name: collabo_creator_boot
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://117.52.20.52:3306/collabo
+    username: manna
+    password: manna20@#
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: f994e344488a4e0375f6f9580b14f66d
+            redirect-uri: http://localhost:5173/customer/kakao
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            scope: profile_nickname, profile_image, account_email
+            client-name: Kakao
+            client-secret: 85st9Asm7o8G1gPSYIGOio9Sb6hKl1RZ
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/user/info
+            user-name-attribute: id
+
+
+    hikari:
+      minimum-idle: 2
+      maximum-pool-size: 5
+      connection-timeout: 5000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.MariaDB103Dialect
+    show-sql: true
+    properties:
+      hibernate:
+        default_batch_fetch_size: 10
+        format_sql: true
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 20MB
+      location: upload
+      enabled: true
+
+org:
+  oz:
+    accessTime: 60
+    refreshTime: 216000
+    alwaysNew: true
+    upload:
+      path: upload
+
+logging:
+  level:
+    org.springframework.security.web: TRACE
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
