@@ -16,7 +16,7 @@ public class ProductDetailDTO {
 
     private String productName;
 
-    private String productPrice;
+    private Integer productPrice;
 
     private String productDescription;
 

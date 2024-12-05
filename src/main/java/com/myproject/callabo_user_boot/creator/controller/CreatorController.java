@@ -4,6 +4,7 @@ import com.myproject.callabo_user_boot.creator.dto.CreatorListDTO;
 import com.myproject.callabo_user_boot.creator.service.CreatorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,9 +23,8 @@ public class CreatorController {
 
     // 제작자 리스트
     @GetMapping("/list")
-    public ResponseEntity<List<CreatorListDTO>> getCreatorList() {
-
-        List<CreatorListDTO> creators = creatorService.getCreatorsList();
+    public ResponseEntity<List<CreatorListDTO>> getCreatorList(@RequestParam String customerId) {
+        List<CreatorListDTO> creators = creatorService.getCreatorsWithFollowStatus(customerId);
         return ResponseEntity.ok(creators);
     }
 }
