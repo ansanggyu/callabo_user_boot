@@ -16,24 +16,29 @@ public class CreatorSearchImpl extends QuerydslRepositorySupport implements Crea
 
     public CreatorSearchImpl() {super(CreatorEntity.class);}
 
-    // 제작자 리스트
     @Override
-    public List<CreatorListDTO> creatorsList() {
+    public List<CreatorListDTO> getCreatorsWithFollowStatus(String customerId) {
 
         QCreatorEntity creator = QCreatorEntity.creatorEntity;
         QCreatorFollowEntity follow = QCreatorFollowEntity.creatorFollowEntity;
 
         // JPQL Query 생성
         JPQLQuery<CreatorListDTO> query = from(creator)
-                .leftJoin(follow).on(follow.creatorEntity.eq(creator))
-                .select(Projections.bean(CreatorListDTO.class,
+                .leftJoin(follow).on(
+                        follow.creatorEntity.eq(creator)
+                                .and(follow.customerEntity.customerId.eq(customerId))
+                )
+                .select(Projections.bean(
+                        CreatorListDTO.class,
                         creator.creatorId,
                         creator.creatorName,
                         creator.backgroundImg,
                         creator.logoImg,
-                        follow.followStatus
+                        follow.followStatus.coalesce(false).as("followStatus") // followStatus 없으면 false
                 ));
 
         return query.fetch();
     }
+
+    // 필로우 상태 변경
 }

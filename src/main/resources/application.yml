@@ -2,30 +2,29 @@ spring:
   application:
     name: collabo_creator_boot
   datasource:
-    driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://117.52.20.52:3306/collabo
-    username: manna
-    password: manna20@#
+    driver-class-name: ${DB_DRIVER_CLASS_NAME}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   security:
     oauth2:
       client:
         registration:
           kakao:
-            client-id: f994e344488a4e0375f6f9580b14f66d
-            redirect-uri: http://localhost:5173/customer/kakao
+            client-id: ${KAKAO_CLIENT_ID}
+            redirect-uri: ${KAKAO_REDIRECT_URI}
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
             scope: profile_nickname, profile_image, account_email
             client-name: Kakao
-            client-secret: 85st9Asm7o8G1gPSYIGOio9Sb6hKl1RZ
+            client-secret: ${KAKAO_CLIENT_SECRET}
         provider:
           kakao:
-            authorization-uri: https://kauth.kakao.com/oauth/authorize
-            token-uri: https://kauth.kakao.com/oauth/token
-            user-info-uri: https://kapi.kakao.com/user/info
+            authorization-uri: ${KAKAO_AUTHORIZATION_URI}
+            token-uri: ${KAKAO_TOKEN_URI}
+            user-info-uri: ${KAKAO_USER_INFO_URI}
             user-name-attribute: id
-
 
     hikari:
       minimum-idle: 2
