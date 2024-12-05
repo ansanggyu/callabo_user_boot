@@ -30,10 +30,6 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
 
-    private final CreatorFollowRepository creatorFollowRepository;
-
-    private final CreatorRepository creatorRepository;
-
     private final RestTemplate restTemplate;
 
     // 사용자 정보
@@ -48,6 +44,9 @@ public class CustomerService {
         String nickname = getKakaoAccountInfo(accessToken, "nickname");
         log.info("nickname: " + nickname);
 
+        String profileImage = getKakaoAccountInfo(accessToken, "profile_image");
+        log.info("profile_image: " + profileImage);
+
         // 사용자 정보가 없으면 예외 처리
         if (email.isEmpty()) {
             throw new RuntimeException("Failed to retrieve email from Kakao API");
@@ -61,12 +60,13 @@ public class CustomerService {
             // 기존 사용자 업데이트
             customer = result.get();
             customer.setCustomerName(nickname);
+            customer.setCustomerProfileImage(profileImage);
         } else {
             // 신규 사용자 생성
             customer = new CustomerEntity();
             customer.setCustomerId(email);
             customer.setCustomerName(nickname);
-            customer.setCustomerProfileImage("");
+            customer.setCustomerProfileImage(profileImage);
             customer.setCustomerPhone("");
             customer.setCustomerZipcode("");
             customer.setCustomerAddr("");
@@ -77,6 +77,7 @@ public class CustomerService {
 
         dto.setCustomerId(customer.getCustomerId());
         dto.setCustomerName(customer.getCustomerName());
+        dto.setCustomerProfileImage(customer.getCustomerProfileImage());
 
         // 저장
         customerRepository.save(customer);
@@ -108,14 +109,16 @@ public class CustomerService {
             Map<String, Object> kakaoAccount = (Map<String, Object>) body.get("kakao_account");
             Map<String, String> properties = (Map<String, String>) body.get("properties");
 
+//            log.info("Kakao API Response Body: {}", body);
+
             // 필드별 데이터 처리
             switch (field) {
                 case "email":
                     return kakaoAccount != null ? kakaoAccount.getOrDefault("email", "").toString() : "";
                 case "nickname":
                     return properties != null ? properties.getOrDefault("nickname", "") : "";
-                case "profileImage":
-                    return properties != null ? properties.getOrDefault("profile_image_url", "") : "";
+                case "profile_image":
+                    return properties != null ? properties.getOrDefault("profile_image", "") : "";
                 default:
                     throw new IllegalArgumentException("Invalid field: " + field);
             }
@@ -125,39 +128,5 @@ public class CustomerService {
         }
     }
 
-    // 팔로우 상태 변경
-    public CreatorFollowDTO toggleFollow(CreatorFollowDTO followDTO) {
-
-        // 팔로우 상태 조회
-        CreatorFollowEntity followEntity = creatorFollowRepository
-                .findByCustomerEntity_CustomerIdAndCreatorEntity_CreatorId(
-                        followDTO.getCustomerId(),
-                        followDTO.getCreatorId()
-                )
-                .orElseGet(() -> {
-                    CustomerEntity customerEntity = customerRepository.findById(followDTO.getCustomerId())
-                            .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
-                    CreatorEntity creatorEntity = creatorRepository.findById(followDTO.getCreatorId())
-                            .orElseThrow(() -> new IllegalArgumentException("Creator not found"));
-
-                    CreatorFollowEntity newFollow = new CreatorFollowEntity();
-                    newFollow.setCustomerEntity(customerEntity);
-                    newFollow.setCreatorEntity(creatorEntity);
-                    newFollow.setFollowStatus(false);
-                    return newFollow;
-                });
-
-        // 팔로우 상태 변경
-        followEntity.setFollowStatus(!Boolean.TRUE.equals(followEntity.getFollowStatus()));
-
-        // 변경된 상태 저장
-        creatorFollowRepository.save(followEntity);
-
-        return CreatorFollowDTO.builder()
-                .customerId(followDTO.getCustomerId())
-                .creatorId(followDTO.getCreatorId())
-                .followStatus(followEntity.getFollowStatus())
-                .build();
-    }
 }
 
