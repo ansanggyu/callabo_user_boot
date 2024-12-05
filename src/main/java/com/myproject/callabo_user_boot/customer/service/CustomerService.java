@@ -5,6 +5,7 @@ import com.myproject.callabo_user_boot.creator.repository.CreatorRepository;
 import com.myproject.callabo_user_boot.customer.domain.CreatorFollowEntity;
 import com.myproject.callabo_user_boot.customer.domain.CustomerEntity;
 import com.myproject.callabo_user_boot.customer.dto.CreatorFollowDTO;
+import com.myproject.callabo_user_boot.customer.dto.CustomerDTO;
 import com.myproject.callabo_user_boot.customer.dto.KakaoLoginDTO;
 import com.myproject.callabo_user_boot.customer.repository.CreatorFollowRepository;
 import com.myproject.callabo_user_boot.customer.repository.CustomerRepository;
@@ -126,6 +127,22 @@ public class CustomerService {
             log.error("Failed to fetch user info from Kakao API", e);
             throw new RuntimeException("Failed to fetch user info from Kakao API: " + e.getMessage(), e);
         }
+    }
+
+    // 사용자 정보 업데이트
+    public void updateCustomer(String customerId, CustomerDTO customerDTO) {
+        // customerId로 기존 엔티티 조회
+        CustomerEntity customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 고객을 찾을 수 없습니다."));
+
+        // DTO 데이터를 엔티티에 반영
+        customer.setCustomerPhone(customerDTO.getCustomerPhone());
+        customer.setCustomerZipcode(customerDTO.getCustomerZipcode());
+        customer.setCustomerAddr(customerDTO.getCustomerAddr());
+        customer.setCustomerAddrDetail(customerDTO.getCustomerAddrDetail());
+
+        // 변경사항 저장
+        customerRepository.save(customer);
     }
 
 }
