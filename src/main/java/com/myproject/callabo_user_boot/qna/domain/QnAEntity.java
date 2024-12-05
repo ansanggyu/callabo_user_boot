@@ -1,6 +1,7 @@
 package com.myproject.callabo_user_boot.qna.domain;
 
 import com.myproject.callabo_user_boot.common.BasicEntity;
+import com.myproject.callabo_user_boot.creator.domain.CreatorEntity;
 import com.myproject.callabo_user_boot.customer.domain.CustomerEntity;
 import com.myproject.callabo_user_boot.product.domain.ProductEntity;
 import jakarta.persistence.*;
@@ -21,6 +22,10 @@ public class QnAEntity extends BasicEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", referencedColumnName = "customer_id")
     private CustomerEntity customerEntity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id", referencedColumnName = "creator_id")
+    private CreatorEntity creatorEntity;
 
     @Column(name = "question", nullable = false)
     private String question;

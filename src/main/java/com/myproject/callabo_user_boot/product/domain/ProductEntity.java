@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Builder
@@ -16,7 +19,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name = "product")
 public class ProductEntity extends BasicEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_no")
@@ -40,9 +42,19 @@ public class ProductEntity extends BasicEntity {
     private Integer productPrice;
 
     @Column(name = "stock")
-    private String stock;
+    private Integer stock;
 
     @Column(name = "product_status")
     private String productStatus;
 
+    @OneToMany(mappedBy = "productEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductImageEntity> productImages = new ArrayList<>();
+
+    public void addProductImage(ProductImageEntity productImage) {
+        if (productImages == null) {
+            productImages = new ArrayList<>();
+        }
+        productImages.add(productImage);
+        productImage.linkToProduct(this);
+    }
 }
