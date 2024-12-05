@@ -32,6 +32,6 @@ public class CustomerEntity extends BasicEntity {
     @Column(name = "customer_addr_detail")
     private String customerAddrDetail;
 
-    @Column(name = "customer_profile_image", nullable = false)
+    @Column(name = "customer_profile_image", nullable = false, length = 2000)
     private String customerProfileImage;
 }

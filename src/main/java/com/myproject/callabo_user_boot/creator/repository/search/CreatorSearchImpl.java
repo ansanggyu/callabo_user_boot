@@ -16,7 +16,6 @@ public class CreatorSearchImpl extends QuerydslRepositorySupport implements Crea
 
     public CreatorSearchImpl() {super(CreatorEntity.class);}
 
-    // 제작자 리스트
     @Override
     public List<CreatorListDTO> creatorsList() {
 
@@ -26,6 +25,7 @@ public class CreatorSearchImpl extends QuerydslRepositorySupport implements Crea
         // JPQL Query 생성
         JPQLQuery<CreatorListDTO> query = from(creator)
                 .leftJoin(follow).on(follow.creatorEntity.eq(creator))
+                .groupBy(creator.creatorId, creator.creatorName, creator.backgroundImg, creator.logoImg)
                 .select(Projections.bean(CreatorListDTO.class,
                         creator.creatorId,
                         creator.creatorName,

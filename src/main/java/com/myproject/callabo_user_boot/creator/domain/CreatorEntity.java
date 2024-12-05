@@ -1,8 +1,14 @@
 package com.myproject.callabo_user_boot.creator.domain;
 
 import com.myproject.callabo_user_boot.common.BasicEntity;
+import com.myproject.callabo_user_boot.order.domain.OrdersEntity;
+import com.myproject.callabo_user_boot.qna.domain.QnAEntity;
+import com.myproject.callabo_user_boot.review.domain.ReviewEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -25,10 +31,10 @@ public class CreatorEntity extends BasicEntity {
     @Column(name = "creator_password", nullable = false)
     private String creatorPassword;
 
-    @Column(name = "background_img", length = 512)
+    @Column(name = "background_img", length = 2000)
     private String backgroundImg;
 
-    @Column(name = "logo_img", length = 512)
+    @Column(name = "logo_img", length = 2000)
     private String logoImg;
 
     @Column(name = "del_flag", columnDefinition = "BOOLEAN DEFAULT false")
@@ -45,4 +51,20 @@ public class CreatorEntity extends BasicEntity {
 
     @Column(name = "creator_bank")
     private String creatorBank;
+
+    // Creator와 연관된 QnA
+    @OneToMany(mappedBy = "creatorEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QnAEntity> qnaEntities = new ArrayList<>();
+
+    // Creator와 연관된 Review
+    @OneToMany(mappedBy = "creatorEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewEntity> reviewEntities = new ArrayList<>();
+
+    // Creator와 연관된 Order
+    @OneToMany(mappedBy = "creatorEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrdersEntity> orderEntities = new ArrayList<>();
+
+    // Creator와 연관된 OfflineStore
+    @OneToMany(mappedBy = "creatorEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CreatorOfflineStoreEntity> offlineStoreEntities = new ArrayList<>();
 }
