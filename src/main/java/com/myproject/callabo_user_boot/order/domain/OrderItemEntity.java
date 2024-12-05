@@ -4,11 +4,13 @@ import com.myproject.callabo_user_boot.common.BasicEntity;
 import com.myproject.callabo_user_boot.product.domain.ProductEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 
 @Entity
 @Table(name = "order_item")
 @Getter
+@Setter
 public class OrderItemEntity extends BasicEntity {
 
     @Id
