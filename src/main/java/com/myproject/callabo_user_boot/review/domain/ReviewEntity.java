@@ -1,6 +1,7 @@
 package com.myproject.callabo_user_boot.review.domain;
 
 import com.myproject.callabo_user_boot.common.BasicEntity;
+import com.myproject.callabo_user_boot.creator.domain.CreatorEntity;
 import com.myproject.callabo_user_boot.customer.domain.CustomerEntity;
 import com.myproject.callabo_user_boot.product.domain.ProductEntity;
 import jakarta.persistence.*;
@@ -17,16 +18,13 @@ public class ReviewEntity extends BasicEntity {
     private Long reviewNo;
 
     @Column(name = "rating")
-    private int rating;
+    private Integer rating;
 
     @Column(name = "comment", nullable = false)
     private String comment;
 
     @Column(name = "reply", nullable = false)
     private String reply;
-
-    @Column(name = "review_like", nullable = false)
-    private int reviewLike;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_no", referencedColumnName = "product_no")
@@ -35,5 +33,9 @@ public class ReviewEntity extends BasicEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", referencedColumnName = "customer_id")
     private CustomerEntity customerEntity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id", referencedColumnName = "creator_id")
+    private CreatorEntity creatorEntity;
   
 }

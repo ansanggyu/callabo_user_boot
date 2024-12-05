@@ -1,7 +1,12 @@
 package com.myproject.callabo_user_boot.customer.service;
 
+import com.myproject.callabo_user_boot.creator.domain.CreatorEntity;
+import com.myproject.callabo_user_boot.creator.repository.CreatorRepository;
+import com.myproject.callabo_user_boot.customer.domain.CreatorFollowEntity;
 import com.myproject.callabo_user_boot.customer.domain.CustomerEntity;
-import com.myproject.callabo_user_boot.customer.dto.CustomerDTO;
+import com.myproject.callabo_user_boot.customer.dto.CreatorFollowDTO;
+import com.myproject.callabo_user_boot.customer.dto.KakaoLoginDTO;
+import com.myproject.callabo_user_boot.customer.repository.CreatorFollowRepository;
 import com.myproject.callabo_user_boot.customer.repository.CustomerRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -28,8 +32,10 @@ public class CustomerService {
 
     private final RestTemplate restTemplate;
 
-    public CustomerDTO authKakao(String accessToken) {
-        log.info("Access token: " + accessToken);
+    // 사용자 정보
+    public KakaoLoginDTO authKakao(String accessToken) {
+
+        log.info("accessToken: " + accessToken);
 
         // 사용자 정보 가져오기
         String email = getKakaoAccountInfo(accessToken, "email");
@@ -39,7 +45,7 @@ public class CustomerService {
         log.info("nickname: " + nickname);
 
         String profileImage = getKakaoAccountInfo(accessToken, "profile_image");
-        log.info("profileImage: " + profileImage);
+        log.info("profile_image: " + profileImage);
 
         // 사용자 정보가 없으면 예외 처리
         if (email.isEmpty()) {
@@ -67,7 +73,7 @@ public class CustomerService {
             customer.setCustomerAddrDetail("");
         }
 
-        CustomerDTO dto = new CustomerDTO();
+        KakaoLoginDTO dto = new KakaoLoginDTO();
 
         dto.setCustomerId(customer.getCustomerId());
         dto.setCustomerName(customer.getCustomerName());
@@ -79,12 +85,13 @@ public class CustomerService {
         return dto;
     }
 
-
+    // 토큰
     private String getKakaoAccountInfo(String accessToken, String field) {
         String kakaoGetUserURL = "https://kapi.kakao.com/v2/user/me";
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
+
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
@@ -101,6 +108,8 @@ public class CustomerService {
             // kakao_account 가져오기
             Map<String, Object> kakaoAccount = (Map<String, Object>) body.get("kakao_account");
             Map<String, String> properties = (Map<String, String>) body.get("properties");
+
+//            log.info("Kakao API Response Body: {}", body);
 
             // 필드별 데이터 처리
             switch (field) {

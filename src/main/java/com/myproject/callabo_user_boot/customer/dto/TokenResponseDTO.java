@@ -5,8 +5,13 @@ import lombok.Data;
 @Data
 public class TokenResponseDTO {
 
-    private String creatorId;
+    private String customerId;
+
     private String accessToken;
+
     private String refreshToken;
-    private String creatorName;
+
+    private String customerName;
+
+    private String customerProfileImage;
 }
