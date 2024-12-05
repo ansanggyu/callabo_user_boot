@@ -1,5 +1,6 @@
 package com.myproject.callabo_user_boot.product.controller;
 
+import com.myproject.callabo_user_boot.product.dto.LikedProductDTO;
 import com.myproject.callabo_user_boot.product.dto.ProductDetailDTO;
 import com.myproject.callabo_user_boot.product.dto.ProductListDTO;
 import com.myproject.callabo_user_boot.product.service.ProductService;
@@ -8,6 +9,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -29,5 +31,15 @@ public class ProductController {
     public ResponseEntity<ProductDetailDTO> getProductDetail(@PathVariable("productNo") Long productNo){
 
         return ResponseEntity.ok(productService.readProductDetail(productNo));
+    }
+
+    @GetMapping("/like")
+    public ResponseEntity<List<LikedProductDTO>> getLikedProducts(@RequestParam(required = true) String customerId) {
+        if (customerId == null || customerId.isEmpty()) {
+            return ResponseEntity.badRequest().body(Collections.emptyList());
+        }
+
+        List<LikedProductDTO> likedProducts = productService.getLikedProducts(customerId);
+        return ResponseEntity.ok(likedProducts);
     }
 }

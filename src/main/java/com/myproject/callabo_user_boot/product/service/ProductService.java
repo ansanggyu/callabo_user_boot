@@ -3,6 +3,7 @@ package com.myproject.callabo_user_boot.product.service;
 import com.myproject.callabo_user_boot.category.domain.CategoryEntity;
 import com.myproject.callabo_user_boot.product.domain.ProductEntity;
 import com.myproject.callabo_user_boot.product.domain.ProductImageEntity;
+import com.myproject.callabo_user_boot.product.dto.LikedProductDTO;
 import com.myproject.callabo_user_boot.product.dto.ProductDetailDTO;
 import com.myproject.callabo_user_boot.product.dto.ProductImageDTO;
 import com.myproject.callabo_user_boot.product.dto.ProductListDTO;
@@ -11,6 +12,7 @@ import com.myproject.callabo_user_boot.review.domain.ReviewEntity;
 import com.myproject.callabo_user_boot.review.domain.ReviewImageEntity;
 import com.myproject.callabo_user_boot.review.dto.ReviewImageDTO;
 import com.myproject.callabo_user_boot.review.dto.ReviewReadDTO;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -27,6 +29,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Log4j2
 public class ProductService {
+
+    private final EntityManager entityManager;
 
     private final ProductRepository productRepository;
 
@@ -100,6 +104,28 @@ public class ProductService {
                     .collect(Collectors.toList()))
                 .reviews(new ArrayList<>(reviewMap.values())) // 리뷰 리스트 매핑
                 .build();
+    }
+
+    public List<LikedProductDTO> getLikedProducts(String customerId) {
+        String jpql = "SELECT pl, p, pi " +
+                "FROM ProductLikeEntity pl " +
+                "JOIN pl.productEntity p " +
+                "LEFT JOIN p.productImages pi ON pi.productImageOrd = 1 " +
+                "WHERE pl.customerEntity.customerId = :customerId AND pl.likeStatus = true";
+
+        List<Object[]> result = entityManager.createQuery(jpql, Object[].class)
+                .setParameter("customerId", customerId) // 파라미터로 customerId 전달
+                .getResultList();
+
+        // DTO 빌더를 이용해 결과 생성
+        return result.stream()
+                .map(row -> LikedProductDTO.builder()
+                        .productId(((ProductEntity) row[1]).getProductNo())
+                        .productName(((ProductEntity) row[1]).getProductName())
+                        .productImageUrl(((ProductImageEntity) row[2]) != null ? ((ProductImageEntity) row[2]).getProductImageUrl() : null)
+                        .productPrice(((ProductEntity) row[1]).getProductPrice())
+                        .build())
+                .toList();
     }
 
 }
