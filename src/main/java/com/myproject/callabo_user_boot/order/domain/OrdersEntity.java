@@ -5,6 +5,9 @@ import com.myproject.callabo_user_boot.customer.domain.CustomerEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Table(name = "orders")
@@ -16,7 +19,7 @@ public class OrdersEntity extends BasicEntity {
     private Long orderNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", referencedColumnName = "customer_id")
+    @JoinColumn(name = "customer_id", referencedColumnName = "customer_id", nullable = false)
     private CustomerEntity customerEntity;
 
     @Column(name = "total_amount", nullable = false)
@@ -25,9 +28,27 @@ public class OrdersEntity extends BasicEntity {
     @Column(name = "total_price", nullable = false)
     private int totalPrice;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private int status;
+    private OrderStatus status;
 
     @Column(name = "customer_address", nullable = false)
     private String customerAddress;
+
+    @Column(name = "recipient_name", nullable = false)
+    private String recipientName;
+
+    @Column(name = "recipient_phone", nullable = false)
+    private String recipientPhone;
+
+    @PrePersist
+    @PreUpdate
+    private void calculateTotals() {
+        this.totalAmount = this.orderItems.stream().mapToInt(OrderItemEntity::getQuantity).sum();
+        this.totalPrice = this.orderItems.stream().mapToInt(item ->
+                item.getProductEntity().getProductPrice() * item.getQuantity()).sum();
+    }
+
+    @OneToMany(mappedBy = "ordersEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItemEntity> orderItems = new ArrayList<>();
 }

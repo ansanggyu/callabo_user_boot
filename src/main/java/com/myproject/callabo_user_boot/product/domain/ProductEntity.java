@@ -37,7 +37,7 @@ public class ProductEntity extends BasicEntity {
     private String productDescription;
 
     @Column(name = "product_price", nullable = false)
-    private String productPrice;
+    private Integer productPrice;
 
     @Column(name = "stock")
     private String stock;
