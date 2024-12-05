@@ -6,12 +6,14 @@ import com.myproject.callabo_user_boot.qna.domain.QnAEntity;
 import com.myproject.callabo_user_boot.review.domain.ReviewEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
+@NoArgsConstructor
 @Table(name = "creator")
 public class CreatorEntity extends BasicEntity {
 

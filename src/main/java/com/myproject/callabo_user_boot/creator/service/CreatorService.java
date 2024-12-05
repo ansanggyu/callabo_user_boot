@@ -17,8 +17,7 @@ public class CreatorService {
 
     private final CreatorRepository creatorRepository;
 
-    // 제작자 리스트
-    public List<CreatorListDTO> getCreatorsList() {
-        return creatorRepository.creatorsList();
+    public List<CreatorListDTO> getCreatorsWithFollowStatus(String customerId) {
+        return creatorRepository.getCreatorsWithFollowStatus(customerId);
     }
 }
