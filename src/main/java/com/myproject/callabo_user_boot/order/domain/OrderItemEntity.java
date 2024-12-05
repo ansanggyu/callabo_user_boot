@@ -10,6 +10,7 @@ import lombok.Getter;
 @Table(name = "order_item")
 @Getter
 public class OrderItemEntity extends BasicEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="order_item_no", nullable = false)
@@ -24,8 +25,8 @@ public class OrderItemEntity extends BasicEntity {
     private ProductEntity productEntity;
 
     @Column(name = "quantity", nullable = false)
-    private int quantity;
+    private Integer quantity;
 
     @Column(name = "unit_price", nullable = false)
-    private int unitPrice;
+    private Integer unitPrice;
 }

@@ -40,6 +40,9 @@ public class OrdersEntity extends BasicEntity {
     @Column(name = "customer_address", nullable = false)
     private String customerAddress;
 
+    @Column(name = "customer_addr_detail", nullable = false)
+    private String customerAddrDetail;
+
     @Column(name = "recipient_name", nullable = false)
     private String recipientName;
 
