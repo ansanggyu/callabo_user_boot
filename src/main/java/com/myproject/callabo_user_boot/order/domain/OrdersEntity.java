@@ -6,8 +6,8 @@ import com.myproject.callabo_user_boot.customer.domain.CustomerEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -20,7 +20,7 @@ public class OrdersEntity extends BasicEntity {
     private Long orderNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", referencedColumnName = "customer_id")
+    @JoinColumn(name = "customer_id", referencedColumnName = "customer_id", nullable = false)
     private CustomerEntity customerEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,15 +33,30 @@ public class OrdersEntity extends BasicEntity {
     @Column(name = "total_price", nullable = false)
     private Integer totalPrice;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private Integer status;
+    private OrderStatus status;
 
     @Column(name = "customer_address", nullable = false)
     private String customerAddress;
 
-    @Column(name = "customer_address_detail", nullable = false)
-    private String customerAddressDetail;
+    @Column(name = "customer_addr_detail", nullable = false)
+    private String customerAddrDetail;
 
-    @OneToMany(mappedBy = "ordersEntity", fetch = FetchType.LAZY)
-    private Set<OrderItemEntity> orderItems = new HashSet<>();
+    @Column(name = "recipient_name", nullable = false)
+    private String recipientName;
+
+    @Column(name = "recipient_phone", nullable = false)
+    private String recipientPhone;
+
+    @PrePersist
+    @PreUpdate
+    private void calculateTotals() {
+        this.totalAmount = this.orderItems.stream().mapToInt(OrderItemEntity::getQuantity).sum();
+        this.totalPrice = this.orderItems.stream().mapToInt(item ->
+                item.getProductEntity().getProductPrice() * item.getQuantity()).sum();
+    }
+
+    @OneToMany(mappedBy = "ordersEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItemEntity> orderItems = new ArrayList<>();
 }
