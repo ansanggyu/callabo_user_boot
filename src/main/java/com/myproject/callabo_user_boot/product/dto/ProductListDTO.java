@@ -13,7 +13,7 @@ public class ProductListDTO {
 
     private String productName;
 
-    private String productPrice;
+    private Integer productPrice;
 
     private String productImageUrl;
 
