@@ -19,5 +19,5 @@ public class RefundNCancelEntity extends BasicEntity {
     private String reason;
 
     @Column(name = "status", nullable = false)
-    private int status;
+    private Integer status;
 }

@@ -21,7 +21,4 @@ public class CreatorService {
     public List<CreatorListDTO> getCreatorsList() {
         return creatorRepository.creatorsList();
     }
-
-    // 제작자 팔로우 상태 변경
-
 }

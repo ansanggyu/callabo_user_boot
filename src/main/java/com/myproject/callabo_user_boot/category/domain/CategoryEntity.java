@@ -22,5 +22,4 @@ public class CategoryEntity extends BasicEntity {
 
     @Column(name = "category_name", nullable = false)
     private String categoryName;
-
 }
