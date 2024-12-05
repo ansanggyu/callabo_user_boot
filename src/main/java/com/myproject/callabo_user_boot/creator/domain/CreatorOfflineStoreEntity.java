@@ -13,14 +13,17 @@ public class CreatorOfflineStoreEntity {
     @Column(name = "store_no", nullable = false)
     private Long storeNo;
 
-    @Column(name = "store_image", length = 512)
+    @Column(name = "store_image", length = 2000)
     private String storeImage;
 
     @Column(name = "store_name", nullable = false)
     private String storeName;
 
-    @Column(name = "store_location")
-    private String storeLocation;
+    @Column(name = "store_address")
+    private String storeAddress;
+
+    @Column(name = "store_address_detail")
+    private String storeAddressDetail;
 
     @Column(name = "latitude", precision = 10, scale = 8, nullable = false)
     private BigDecimal latitude;

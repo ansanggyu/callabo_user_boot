@@ -11,13 +11,13 @@ public class QnAImageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "qna_image_no")
-    private int qnaImageNo;
+    private Integer qnaImageNo;
 
     @Column(name = "qna_image_url", length = 512)
     private String qnaImageUrl;
 
     @Column(name = "qna_image_ord")
-    private int qnaImageOrd;
+    private Integer qnaImageOrd;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "qna_no", referencedColumnName = "qna_no")

@@ -11,13 +11,13 @@ public class ReviewImageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_image_no")
-    private int reviewImageNo;
+    private Integer reviewImageNo;
 
     @Column(name = "review_image_url", length = 512)
     private String reviewImageUrl;
 
     @Column(name = "review_image_ord")
-    private int reviewImageOrd;
+    private Integer reviewImageOrd;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_no", referencedColumnName = "review_no")
