@@ -1,6 +1,7 @@
 package com.myproject.callabo_user_boot.customer.controller;
 
-import com.myproject.callabo_user_boot.customer.dto.CustomerDTO;
+import com.myproject.callabo_user_boot.customer.dto.CreatorFollowDTO;
+import com.myproject.callabo_user_boot.customer.dto.KakaoLoginDTO;
 import com.myproject.callabo_user_boot.customer.dto.TokenResponseDTO;
 import com.myproject.callabo_user_boot.customer.exception.CustomerException;
 import com.myproject.callabo_user_boot.customer.service.CustomerService;
@@ -11,10 +12,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -40,21 +38,21 @@ public class CustomerController {
     // Kakao 로그인 시 토큰 생성 엔드포인트
     @RequestMapping("kakao")
     public ResponseEntity<TokenResponseDTO> kakaoToken(String accessToken) {
-        log.info("Kakao access token: {}", accessToken);
+
+        log.info("Kakao access token: ", accessToken);
 
         // 카카오 인증 토큰을 사용하여 사용자 정보를 조회
-        CustomerDTO customerDTO = customerService.authKakao(accessToken);
-
-        log.info("CustomerDTO: {}", customerDTO);
+        KakaoLoginDTO kakao = customerService.authKakao(accessToken);
 
         // Null 체크
-        if (customerDTO.getCustomerId() == null) {
+        if (kakao.getCustomerId() == null) {
             throw new RuntimeException("Customer ID is null");
         }
 
         // 사용자 정보를 토큰에 저장하기 위한 Claim 맵 생성
         Map<String, Object> claimMap = Map.of(
-                "email", customerDTO.getCustomerId()
+                "email", kakao.getCustomerId(),
+                "name", kakao.getCustomerName()
         );
 
         // Access token과 Refresh token을 생성
@@ -65,21 +63,15 @@ public class CustomerController {
         TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
         tokenResponseDTO.setAccessToken(generatedAccessToken);
         tokenResponseDTO.setRefreshToken(refreshToken);
-        tokenResponseDTO.setCreatorId(customerDTO.getCustomerId());
-        tokenResponseDTO.setCreatorName(customerDTO.getCustomerName());
+        tokenResponseDTO.setCustomerId(kakao.getCustomerId());
+        tokenResponseDTO.setCustomerName(kakao.getCustomerName());
 
         return ResponseEntity.ok(tokenResponseDTO);
     }
 
-
-    // Refresh token을 사용하여 새로운 Access token을 발급하는 엔드포인트
-    @PostMapping(value = "kakao/refreshToken",
-            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<TokenResponseDTO> kakaorefreshToken(
-            @RequestHeader("Authorization") String accessToken,
-            String refreshToken) {
+    // Refresh token 사용하여 새로운 Access token 발급하는 엔드포인트
+    @PostMapping(value = "kakao/refreshToken", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TokenResponseDTO> kakaorefreshToken( @RequestHeader("Authorization") String accessToken, String refreshToken ) {
 
         // accessToken 또는 refreshToken이 없으면 예외를 던짐
         if(accessToken == null || refreshToken == null) {
@@ -90,10 +82,11 @@ public class CustomerController {
         if(!accessToken.startsWith("Bearer ")) {
             throw CustomerException.ACCESSTOKEN_TOO_SHORT.get();
         }
+
         // Bearer 부분을 제거한 access token 문자열을 추출
         String accessTokenStr = accessToken.substring("Bearer ".length());
 
-        //AccessToken의 만료 여부 체크
+        //AccessToken 만료 여부 체크
         try{
             Map<String, Object> payload = jwtUtil.validateToken(accessTokenStr);
 
@@ -103,16 +96,15 @@ public class CustomerController {
 
             TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
             tokenResponseDTO.setAccessToken(accessTokenStr);
-            tokenResponseDTO.setCreatorId(email);
+            tokenResponseDTO.setCustomerId(email);
             tokenResponseDTO.setRefreshToken(refreshToken);
-            tokenResponseDTO.setCreatorName(name);
+            tokenResponseDTO.setCustomerName(name);
 
             return ResponseEntity.ok(tokenResponseDTO);
 
         }catch (ExpiredJwtException ex) {
-            // AccessToken이 만료된 경우
 
-            // RefreshToken의 만료 여부를 확인
+            // RefreshToken 만료 여부를 확인
             try{
                 Map<String, Object> payload = jwtUtil.validateToken(refreshToken);
                 String email = payload.get("email").toString();
@@ -130,8 +122,8 @@ public class CustomerController {
                 TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
                 tokenResponseDTO.setAccessToken(newAccessToken);
                 tokenResponseDTO.setRefreshToken(newRefreshToken);
-                tokenResponseDTO.setCreatorId(email);
-                tokenResponseDTO.setCreatorName(name);
+                tokenResponseDTO.setCustomerId(email);
+                tokenResponseDTO.setCustomerName(name);
 
                 return ResponseEntity.ok(new TokenResponseDTO());
 
@@ -142,4 +134,10 @@ public class CustomerController {
         }
     }
 
+    // 팔로우 상태 변경
+//    @PostMapping("/follow")
+//    public ResponseEntity<CreatorFollowDTO> followCreator(@RequestBody CreatorFollowDTO followDTO) {
+//        CreatorFollowDTO updatedFollowDTO = customerService.toggleFollow(followDTO);
+//        return ResponseEntity.ok(updatedFollowDTO);
+//    }
 }

@@ -25,9 +25,6 @@ public class ReviewEntity extends BasicEntity {
     @Column(name = "reply", nullable = false)
     private String reply;
 
-    @Column(name = "review_like", nullable = false)
-    private int reviewLike;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_no", referencedColumnName = "product_no")
     private ProductEntity productEntity;

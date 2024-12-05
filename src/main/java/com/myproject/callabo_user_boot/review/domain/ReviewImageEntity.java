@@ -13,7 +13,7 @@ public class ReviewImageEntity {
     @Column(name = "review_image_no")
     private int reviewImageNo;
 
-    @Column(name = "review_image_url")
+    @Column(name = "review_image_url", length = 512)
     private String reviewImageUrl;
 
     @Column(name = "review_image_ord")

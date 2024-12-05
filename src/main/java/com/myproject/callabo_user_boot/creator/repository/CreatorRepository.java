@@ -4,8 +4,6 @@ import com.myproject.callabo_user_boot.creator.domain.CreatorEntity;
 import com.myproject.callabo_user_boot.creator.repository.search.CreatorSearch;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
-
 public interface CreatorRepository extends JpaRepository<CreatorEntity, String>, CreatorSearch {
 
 }

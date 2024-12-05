@@ -15,7 +15,7 @@ public class ProductImageEntity extends BasicEntity {
     @Column(name = "product_image_no")
     private int productImageNo; // 상품 번호
 
-    @Column(name = "product_image_url")
+    @Column(name = "product_image_url", length = 512)
     private String productImageUrl; // 상품 이미지
 
     @Column(name = "product_image_ord")

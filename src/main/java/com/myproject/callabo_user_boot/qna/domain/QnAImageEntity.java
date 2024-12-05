@@ -13,7 +13,7 @@ public class QnAImageEntity {
     @Column(name = "qna_image_no")
     private int qnaImageNo;
 
-    @Column(name = "qna_image_url")
+    @Column(name = "qna_image_url", length = 512)
     private String qnaImageUrl;
 
     @Column(name = "qna_image_ord")
