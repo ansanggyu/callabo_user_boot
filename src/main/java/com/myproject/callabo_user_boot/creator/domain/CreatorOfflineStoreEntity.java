@@ -13,7 +13,7 @@ public class CreatorOfflineStoreEntity {
     @Column(name = "store_no", nullable = false)
     private Long storeNo;
 
-    @Column(name = "store_image")
+    @Column(name = "store_image", length = 512)
     private String storeImage;
 
     @Column(name = "store_name", nullable = false)

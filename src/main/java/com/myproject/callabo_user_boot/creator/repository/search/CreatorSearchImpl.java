@@ -36,4 +36,6 @@ public class CreatorSearchImpl extends QuerydslRepositorySupport implements Crea
 
         return query.fetch();
     }
+
+    // 필로우 상태 변경
 }

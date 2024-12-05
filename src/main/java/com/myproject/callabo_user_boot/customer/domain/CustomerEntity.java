@@ -5,8 +5,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 @Entity
-@Getter
 @Table(name = "customer")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class CustomerEntity extends BasicEntity {
 
     @Id
