@@ -196,9 +196,5 @@ public class CustomerService {
         // 변경사항 저장
         customerRepository.save(customer);
     }
-
-
-import com.myproject.callabo_user_boot.customer.dto.CustomerDTO;
-
 }
 
