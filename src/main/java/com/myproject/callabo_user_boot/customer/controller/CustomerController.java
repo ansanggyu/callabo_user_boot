@@ -1,4 +1,5 @@
 package com.myproject.callabo_user_boot.customer.controller;
+import com.myproject.callabo_user_boot.customer.dto.CustomerDTO;
 import com.myproject.callabo_user_boot.customer.dto.KakaoLoginDTO;
 import com.myproject.callabo_user_boot.customer.dto.LikedCreatorDTO;
 import com.myproject.callabo_user_boot.customer.dto.TokenResponseDTO;
@@ -135,5 +136,12 @@ public class CustomerController {
 
         List<LikedCreatorDTO> creatorFollows = customerService.getLikedCreators(customerId);
         return ResponseEntity.ok(creatorFollows);
+    }
+
+    // 사용자 정보 업데이트
+    @PutMapping("/{customerId}")
+    public ResponseEntity<Void> updateCustomer( @PathVariable String customerId, @RequestBody CustomerDTO customerDTO) {
+        customerService.updateCustomer(customerId, customerDTO);
+        return ResponseEntity.ok().build();
     }
 }

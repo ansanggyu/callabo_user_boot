@@ -1,6 +1,8 @@
 package com.myproject.callabo_user_boot.product.service;
 
 import com.myproject.callabo_user_boot.category.domain.CategoryEntity;
+import com.myproject.callabo_user_boot.customer.domain.CustomerEntity;
+import com.myproject.callabo_user_boot.customer.dto.CustomerDTO;
 import com.myproject.callabo_user_boot.product.domain.ProductEntity;
 import com.myproject.callabo_user_boot.product.domain.ProductImageEntity;
 import com.myproject.callabo_user_boot.customer.dto.LikedProductDTO;
