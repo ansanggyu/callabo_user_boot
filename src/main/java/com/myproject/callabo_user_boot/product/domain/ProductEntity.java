@@ -35,7 +35,7 @@ public class ProductEntity extends BasicEntity {
     @Column(name = "product_name", nullable = false)
     private String productName;
 
-    @Column(name = "product_description")
+    @Column(name = "product_description", columnDefinition = "TEXT")
     private String productDescription;
 
     @Column(name = "product_price", nullable = false)
