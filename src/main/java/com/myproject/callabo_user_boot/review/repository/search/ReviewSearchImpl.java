@@ -30,6 +30,7 @@ public class ReviewSearchImpl extends QuerydslRepositorySupport implements Revie
         super(ReviewEntity.class);
     }
 
+    // 제작자 모든 상품 리뷰
     @Override
     public List<ReviewListDTO> reviewListByCreator(String creatorId) {
         QReviewEntity review = QReviewEntity.reviewEntity;
@@ -119,6 +120,7 @@ public class ReviewSearchImpl extends QuerydslRepositorySupport implements Revie
         return dtoList;
     }
 
+    // 해당 상품 리뷰
     @Override
     public List<ReviewListDTO> reviewListByProduct(Long productNo) {
         QReviewEntity review = QReviewEntity.reviewEntity;

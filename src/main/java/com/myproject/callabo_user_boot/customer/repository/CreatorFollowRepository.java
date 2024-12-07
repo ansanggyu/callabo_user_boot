@@ -7,7 +7,5 @@ import java.util.Optional;
 
 public interface CreatorFollowRepository extends JpaRepository<CreatorFollowEntity, Long> {
 
-    Optional<CreatorFollowEntity> findByCustomerEntity_CustomerIdAndCreatorEntity_CreatorId(String customerId, String creatorId);
-
 }
 

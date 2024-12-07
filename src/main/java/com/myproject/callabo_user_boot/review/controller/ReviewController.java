@@ -28,7 +28,7 @@ public class ReviewController {
 
     @GetMapping("/list")
     public ResponseEntity<List<ReviewListDTO>> getReviewList(
-            @RequestParam("creatorId") String creatorId,
+            @RequestParam(value = "creatorId", required = false) String creatorId,
             @RequestParam(value = "productNo", required = false) Long productNo) {
 
         log.info("creatorId: {}, productNo: {}", creatorId, productNo);
