@@ -1,8 +1,11 @@
 package com.myproject.callabo_user_boot.customer.controller;
+import com.myproject.callabo_user_boot.customer.dto.CustomerDTO;
 import com.myproject.callabo_user_boot.customer.dto.KakaoLoginDTO;
+import com.myproject.callabo_user_boot.customer.dto.LikedCreatorDTO;
 import com.myproject.callabo_user_boot.customer.dto.TokenResponseDTO;
 import com.myproject.callabo_user_boot.customer.exception.CustomerException;
 import com.myproject.callabo_user_boot.customer.service.CustomerService;
+import com.myproject.callabo_user_boot.customer.dto.LikedProductDTO;
 import com.myproject.callabo_user_boot.security.util.JWTUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
@@ -10,10 +13,10 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 @RestController
 @RequestMapping("/api2/customer")
@@ -112,5 +115,33 @@ public class CustomerController {
                 throw CustomerException.REQUIRE_SIGH_IN.get();
             }
         }
+    }
+
+    @GetMapping("/likedproducts")
+    public ResponseEntity<List<LikedProductDTO>> getLikedProducts(@RequestParam(required = true) String customerId) {
+        if (customerId == null || customerId.isEmpty()) {
+            return ResponseEntity.badRequest().body(Collections.emptyList());
+        }
+
+        // customerService 인스턴스를 사용하여 메서드 호출
+        List<LikedProductDTO> likedProducts = customerService.getLikedProducts(customerId);
+        return ResponseEntity.ok(likedProducts);
+    }
+
+    @GetMapping("/likedcreators")
+    public ResponseEntity<List<LikedCreatorDTO>> getCreatorFollows(@RequestParam String customerId) {
+        if (customerId == null || customerId.isEmpty()) {
+            return ResponseEntity.badRequest().body(Collections.emptyList());
+        }
+
+        List<LikedCreatorDTO> creatorFollows = customerService.getLikedCreators(customerId);
+        return ResponseEntity.ok(creatorFollows);
+    }
+
+    // 사용자 정보 업데이트
+    @PutMapping("/{customerId}")
+    public ResponseEntity<Void> updateCustomer( @PathVariable String customerId, @RequestBody CustomerDTO customerDTO) {
+        customerService.updateCustomer(customerId, customerDTO);
+        return ResponseEntity.ok().build();
     }
 }

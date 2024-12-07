@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,18 +36,30 @@ public class OrderService {
 
     @Transactional
     public List<OrdersEntity> createOrders(List<OrderRequestDTO> orderRequests) {
+        // 1. CustomerEntity와 CreatorEntity를 미리 로드
+        String customerId = orderRequests.get(0).getCustomerId();
+        CustomerEntity customerEntity = customerRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid customerId: " + customerId));
+
+        String creatorId = orderRequests.get(0).getCreatorId();
+        CreatorEntity creatorEntity = creatorRepository.findById(creatorId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid creatorId: " + creatorId));
+
+        // 2. ProductEntity를 한 번에 로드
+        List<Long> productIds = orderRequests.stream()
+                .flatMap(order -> order.getItems().stream())
+                .map(OrderItemRequestDTO::getProductNo)
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<Long, ProductEntity> productMap = productRepository.findAllById(productIds).stream()
+                .collect(Collectors.toMap(ProductEntity::getProductNo, product -> product));
+
+        // 3. OrdersEntity 및 OrderItemEntity 생성
         List<OrdersEntity> ordersEntities = new ArrayList<>();
+        List<OrderItemEntity> orderItemEntities = new ArrayList<>();
 
         for (OrderRequestDTO orderRequest : orderRequests) {
-            // 1. CustomerEntity 조회
-            CustomerEntity customerEntity = customerRepository.findById(orderRequest.getCustomerId())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid customerId: " + orderRequest.getCustomerId()));
-
-            // 2. CreatorEntity 조회
-            CreatorEntity creatorEntity = creatorRepository.findById(orderRequest.getCreatorId())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid creatorId: " + orderRequest.getCreatorId()));
-
-            // 3. OrdersEntity 생성 및 설정
             OrdersEntity ordersEntity = new OrdersEntity();
             ordersEntity.setCustomerEntity(customerEntity);
             ordersEntity.setCreatorEntity(creatorEntity);
@@ -56,38 +69,40 @@ public class OrderService {
             ordersEntity.setRecipientPhone(orderRequest.getRecipientPhone());
             ordersEntity.setStatus(OrderStatus.PENDING);
 
-            // 4. OrderItems 생성 및 추가
-            List<OrderItemEntity> orderItems = new ArrayList<>();
-            int totalAmount = 0; // 총 수량
-            int totalPrice = 0;  // 총 가격
+            int totalAmount = 0;
+            int totalPrice = 0;
 
             for (OrderItemRequestDTO itemDTO : orderRequest.getItems()) {
-                // ProductEntity 조회
-                ProductEntity productEntity = productRepository.findById(itemDTO.getProductNo())
-                        .orElseThrow(() -> new IllegalArgumentException("Invalid productNo: " + itemDTO.getProductNo()));
+                ProductEntity product = productMap.get(itemDTO.getProductNo());
 
-                // OrderItem 생성
+                if (product == null) {
+                    throw new IllegalArgumentException("Invalid productNo: " + itemDTO.getProductNo());
+                }
+
                 OrderItemEntity orderItem = new OrderItemEntity();
-                orderItem.setProductEntity(productEntity);
+                orderItem.setProductEntity(product);
                 orderItem.setQuantity(itemDTO.getQuantity());
                 orderItem.setUnitPrice(itemDTO.getUnitPrice());
                 orderItem.setOrdersEntity(ordersEntity);
 
-                // 총 수량 및 총 가격 계산
+                // OrdersEntity에 OrderItem 추가
+                ordersEntity.getOrderItems().add(orderItem);
+
                 totalAmount += itemDTO.getQuantity();
                 totalPrice += itemDTO.getQuantity() * itemDTO.getUnitPrice();
 
-                orderItems.add(orderItem);
+                orderItemEntities.add(orderItem);
             }
-            ordersEntity.setOrderItems(orderItems);
 
-            // 5. 총 수량 및 총 가격 설정
+
             ordersEntity.setTotalAmount(totalAmount);
             ordersEntity.setTotalPrice(totalPrice);
-
-            // 6. OrdersEntity 저장
-            ordersEntities.add(orderRepository.save(ordersEntity));
+            ordersEntities.add(ordersEntity);
         }
+
+        // 4. Batch Insert로 OrdersEntity와 OrderItemEntity 저장
+        orderRepository.saveAll(ordersEntities);
+        orderItemRepository.saveAll(orderItemEntities);
 
         return ordersEntities;
     }
@@ -95,27 +110,29 @@ public class OrderService {
     @Transactional
     public List<OrdersDTO> createOrdersAndConvertToDTO(List<OrderRequestDTO> orderRequests) {
         List<OrdersEntity> ordersEntities = createOrders(orderRequests);
-        return ordersEntities.stream().map(order -> {
-            OrdersDTO dto = new OrdersDTO();
-            dto.setOrderNo(order.getOrderNo());
-            dto.setRecipientName(order.getRecipientName());
-            dto.setRecipientPhone(order.getRecipientPhone());
-            dto.setCustomerAddress(order.getCustomerAddress());
-            dto.setCustomerAddrDetail(order.getCustomerAddrDetail());
-            dto.setTotalAmount(order.getTotalAmount());
-            dto.setTotalPrice(order.getTotalPrice());
+        return ordersEntities.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
 
-            List<OrderItemDTO> items = order.getOrderItems().stream().map(item -> {
-                OrderItemDTO itemDTO = new OrderItemDTO();
-                itemDTO.setProductNo(item.getProductEntity().getProductNo());
-                itemDTO.setProductName(item.getProductEntity().getProductName());
-                itemDTO.setQuantity(item.getQuantity());
-                itemDTO.setUnitPrice(item.getUnitPrice());
-                return itemDTO;
-            }).collect(Collectors.toList());
-            dto.setItems(items);
+    private OrdersDTO convertToDTO(OrdersEntity ordersEntity) {
+        OrdersDTO dto = new OrdersDTO();
+        dto.setOrderNo(ordersEntity.getOrderNo());
+        dto.setRecipientName(ordersEntity.getRecipientName());
+        dto.setRecipientPhone(ordersEntity.getRecipientPhone());
+        dto.setCustomerAddress(ordersEntity.getCustomerAddress());
+        dto.setCustomerAddrDetail(ordersEntity.getCustomerAddrDetail());
+        dto.setTotalAmount(ordersEntity.getTotalAmount());
+        dto.setTotalPrice(ordersEntity.getTotalPrice());
 
-            return dto;
+        List<OrderItemDTO> items = ordersEntity.getOrderItems().stream().map(item -> {
+            OrderItemDTO itemDTO = new OrderItemDTO();
+            itemDTO.setProductNo(item.getProductEntity().getProductNo());
+            itemDTO.setProductName(item.getProductEntity().getProductName());
+            itemDTO.setQuantity(item.getQuantity());
+            itemDTO.setUnitPrice(item.getUnitPrice());
+            return itemDTO;
         }).collect(Collectors.toList());
+        dto.setItems(items);
+
+        return dto;
     }
 }
