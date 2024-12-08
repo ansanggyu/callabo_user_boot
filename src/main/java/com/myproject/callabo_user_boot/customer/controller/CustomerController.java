@@ -1,11 +1,7 @@
 package com.myproject.callabo_user_boot.customer.controller;
-import com.myproject.callabo_user_boot.customer.dto.CustomerDTO;
-import com.myproject.callabo_user_boot.customer.dto.KakaoLoginDTO;
-import com.myproject.callabo_user_boot.customer.dto.LikedCreatorDTO;
-import com.myproject.callabo_user_boot.customer.dto.TokenResponseDTO;
+import com.myproject.callabo_user_boot.customer.dto.*;
 import com.myproject.callabo_user_boot.customer.exception.CustomerException;
 import com.myproject.callabo_user_boot.customer.service.CustomerService;
-import com.myproject.callabo_user_boot.customer.dto.LikedProductDTO;
 import com.myproject.callabo_user_boot.security.util.JWTUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;

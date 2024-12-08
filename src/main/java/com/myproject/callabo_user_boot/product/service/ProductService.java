@@ -1,11 +1,8 @@
 package com.myproject.callabo_user_boot.product.service;
 
 import com.myproject.callabo_user_boot.category.domain.CategoryEntity;
-import com.myproject.callabo_user_boot.customer.domain.CustomerEntity;
-import com.myproject.callabo_user_boot.customer.dto.CustomerDTO;
 import com.myproject.callabo_user_boot.product.domain.ProductEntity;
 import com.myproject.callabo_user_boot.product.domain.ProductImageEntity;
-import com.myproject.callabo_user_boot.customer.dto.LikedProductDTO;
 import com.myproject.callabo_user_boot.product.dto.ProductDetailDTO;
 import com.myproject.callabo_user_boot.product.dto.ProductImageDTO;
 import com.myproject.callabo_user_boot.product.dto.ProductListDTO;
@@ -14,7 +11,6 @@ import com.myproject.callabo_user_boot.review.domain.ReviewEntity;
 import com.myproject.callabo_user_boot.review.domain.ReviewImageEntity;
 import com.myproject.callabo_user_boot.review.dto.ReviewImageDTO;
 import com.myproject.callabo_user_boot.review.dto.ReviewReadDTO;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
