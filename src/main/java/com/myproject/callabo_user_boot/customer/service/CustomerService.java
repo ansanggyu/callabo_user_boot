@@ -1,10 +1,8 @@
 package com.myproject.callabo_user_boot.customer.service;
 
 import com.myproject.callabo_user_boot.customer.domain.CustomerEntity;
-import com.myproject.callabo_user_boot.customer.dto.CustomerDTO;
-import com.myproject.callabo_user_boot.customer.dto.KakaoLoginDTO;
-import com.myproject.callabo_user_boot.customer.dto.LikedCreatorDTO;
-import com.myproject.callabo_user_boot.customer.dto.LikedProductDTO;
+import com.myproject.callabo_user_boot.customer.domain.ProductLikeEntity;
+import com.myproject.callabo_user_boot.customer.dto.*;
 import com.myproject.callabo_user_boot.customer.repository.CustomerRepository;
 import com.myproject.callabo_user_boot.product.domain.ProductEntity;
 import com.myproject.callabo_user_boot.product.domain.ProductImageEntity;
@@ -132,7 +130,6 @@ public class CustomerService {
         }
     }
 
-    // 사용자 정보 업데이트
     public void updateCustomer(String customerId, CustomerDTO customerDTO) {
         // customerId로 기존 엔티티 조회
         CustomerEntity customer = customerRepository.findById(customerId)
@@ -201,5 +198,41 @@ public class CustomerService {
                 .toList();
     }
 
+    public void toggleProductLike(ProductLikeDTO productLikeDTO) {
+        String jpql = """
+            SELECT pl
+            FROM ProductLikeEntity pl
+            WHERE pl.customerEntity.customerId = :customerId
+            AND pl.productEntity.productNo = :productId
+            """;
+
+        List<ProductLikeEntity> existingLikes = entityManager.createQuery(jpql, ProductLikeEntity.class)
+                .setParameter("customerId", productLikeDTO.getCustomerId())
+                .setParameter("productId", Long.parseLong(productLikeDTO.getProductId()))
+                .getResultList();
+
+        if (!existingLikes.isEmpty()) {
+            // 기존 좋아요 상태 업데이트
+            ProductLikeEntity likeEntity = existingLikes.get(0);
+            likeEntity.setLikeStatus(productLikeDTO.getLikeStatus());
+            entityManager.merge(likeEntity);
+        } else {
+            // ProductEntity와 CustomerEntity 조회
+            ProductEntity productEntity = entityManager.find(ProductEntity.class, Long.parseLong(productLikeDTO.getProductId()));
+            CustomerEntity customerEntity = entityManager.find(CustomerEntity.class, productLikeDTO.getCustomerId());
+
+            if (productEntity == null || customerEntity == null) {
+                throw new IllegalArgumentException("해당 Product 또는 Customer가 존재하지 않습니다.");
+            }
+
+            // 새로운 ProductLikeEntity 생성 및 저장
+            ProductLikeEntity newLikeEntity = new ProductLikeEntity();
+            newLikeEntity.setProductEntity(productEntity);
+            newLikeEntity.setCustomerEntity(customerEntity);
+            newLikeEntity.setLikeStatus(productLikeDTO.getLikeStatus());
+
+            entityManager.persist(newLikeEntity);
+        }
+    }
 }
 
