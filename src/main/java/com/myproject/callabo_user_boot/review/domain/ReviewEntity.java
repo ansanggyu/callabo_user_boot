@@ -20,7 +20,7 @@ public class ReviewEntity extends BasicEntity {
     @Column(name = "rating")
     private Integer rating;
 
-    @Column(name = "comment", nullable = false)
+    @Column(name = "comment", nullable = false , columnDefinition = "TEXT")
     private String comment;
 
     @Column(name = "reply")

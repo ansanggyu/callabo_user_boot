@@ -1,15 +1,13 @@
 package com.myproject.callabo_user_boot.creator.controller;
 
+import com.myproject.callabo_user_boot.customer.dto.CreatorFollowDTO;
 import com.myproject.callabo_user_boot.creator.dto.CreatorListDTO;
 import com.myproject.callabo_user_boot.creator.service.CreatorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,4 +25,16 @@ public class CreatorController {
         List<CreatorListDTO> creators = creatorService.getCreatorsWithFollowStatus(customerId);
         return ResponseEntity.ok(creators);
     }
+
+    @PostMapping("/follow")
+    public ResponseEntity<Void> followCreator(@RequestBody CreatorFollowDTO creatorFollowDTO) {
+        try {
+            creatorService.toggleFollowStatus(creatorFollowDTO);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("팔로우 상태 변경 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }
