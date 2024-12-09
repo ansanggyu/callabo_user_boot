@@ -1,5 +1,6 @@
 package com.myproject.callabo_user_boot.review.dto;
 
+import com.myproject.callabo_user_boot.product.dto.ProductImageDTO;
 import lombok.*;
 
 import java.time.LocalDateTime;

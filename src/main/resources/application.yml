@@ -61,3 +61,15 @@ logging:
     org.springframework.security.web: TRACE
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    s3:
+      bucket : oz-wizard-bucket
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false

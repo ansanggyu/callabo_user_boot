@@ -23,7 +23,7 @@ public class ReviewEntity extends BasicEntity {
     @Column(name = "comment", nullable = false)
     private String comment;
 
-    @Column(name = "reply", nullable = false)
+    @Column(name = "reply")
     private String reply;
 
     @ManyToOne(fetch = FetchType.LAZY)

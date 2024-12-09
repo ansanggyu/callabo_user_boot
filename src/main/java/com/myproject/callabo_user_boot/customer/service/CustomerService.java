@@ -132,11 +132,12 @@ public class CustomerService {
         }
     }
 
+    // 상품 좋아요
     public List<LikedProductDTO> getLikedProducts(String customerId) {
         String jpql = "SELECT pl, p, pi " +
                 "FROM ProductLikeEntity pl " +
                 "JOIN pl.productEntity p " +
-                "LEFT JOIN p.productImages pi ON pi.productImageOrd = 1 " +
+                "LEFT JOIN p.productImages pi ON pi.productImageOrd = 0 " +
                 "WHERE pl.customerEntity.customerId = :customerId AND pl.likeStatus = true";
 
         List<Object[]> result = entityManager.createQuery(jpql, Object[].class)
@@ -154,6 +155,7 @@ public class CustomerService {
                 .toList();
     }
 
+    // 제작자 좋아요
     public List<LikedCreatorDTO> getLikedCreators(String customerId) {
         String jpql = "SELECT cf.creatorEntity.creatorId, " +
                 "       cf.creatorEntity.logoImg, " +
@@ -196,5 +198,6 @@ public class CustomerService {
         // 변경사항 저장
         customerRepository.save(customer);
     }
+
 }
 
