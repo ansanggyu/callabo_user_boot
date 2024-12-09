@@ -150,7 +150,7 @@ public class CustomerService {
                 SELECT pl, p, pi
                 FROM ProductLikeEntity pl
                 JOIN pl.productEntity p
-                LEFT JOIN p.productImages pi ON pi.productImageOrd = 1
+                LEFT JOIN p.productImages pi ON pi.productImageOrd = 0
                 WHERE pl.customerEntity.customerId = :customerId AND pl.likeStatus = true
                 """;
 
