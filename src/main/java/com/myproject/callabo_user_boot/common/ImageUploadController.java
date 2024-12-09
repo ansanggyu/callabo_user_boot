@@ -28,5 +28,4 @@ public class ImageUploadController {
             return ResponseEntity.badRequest().body(List.of("Image upload failed: " + e.getMessage()));
         }
     }
-
 }
