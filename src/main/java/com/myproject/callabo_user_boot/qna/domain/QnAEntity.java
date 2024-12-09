@@ -49,9 +49,12 @@ public class QnAEntity extends BasicEntity {
 
     public void changeQuestion(String question) { this.question = question; }
 
-    public QnAEntity changeQnAImages(List<QnAImageEntity> qnAImages) {
-        this.qnAImages.clear(); // 기존 이미지 삭제
-        this.qnAImages.addAll(qnAImages); // 새로운 이미지 추가
-        return this;
+    public void addQnAImage(QnAImageEntity qnAImage) {
+        if (qnAImages == null) {
+            qnAImages = new ArrayList<>();
+        }
+
+        qnAImages.add(qnAImage);
+        qnAImage.linkToQnA(this);
     }
 }

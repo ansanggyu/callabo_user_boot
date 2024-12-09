@@ -29,4 +29,8 @@ public class QnAImageEntity {
     @JoinColumn(name = "qna_no", referencedColumnName = "qna_no")
     private QnAEntity qnaEntity;
 
+    public void linkToQnA(QnAEntity qnaEntity) {
+        this.qnaEntity = qnaEntity;
+    }
+
 }

@@ -8,6 +8,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,6 +30,18 @@ public class QnAController {
         Long qnaNo = qnAService.registerQnA(qnARegisterDTO);
 
         return ResponseEntity.ok(qnaNo);
+    }
+
+    @PostMapping("/img")
+    public ResponseEntity<List<QnAImageDTO>> uploadQnaImage(
+            @RequestParam("qnaNo") Long qnaNo,
+            @RequestBody List<QnAImageDTO> qnAImageDTOS) {
+        try {
+            List<QnAImageDTO> savedImages = qnAService.saveQnAImages(qnaNo, qnAImageDTOS);
+            return ResponseEntity.ok(savedImages);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+        }
     }
 
     // qna 리스트

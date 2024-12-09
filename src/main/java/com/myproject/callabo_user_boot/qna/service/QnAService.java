@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.myproject.callabo_user_boot.qna.domain.QQnAEntity.qnAEntity;
 
@@ -32,6 +33,9 @@ public class QnAService {
     private final ProductRepository productRepository;
     private final CreatorRepository creatorRepository;
     private final CustomerRepository customerRepository;
+
+    @PersistenceContext
+    private final EntityManager entityManager;
 
     // qna 등록
     public Long registerQnA(QnARegisterDTO qnARegisterDTO) {
@@ -50,6 +54,19 @@ public class QnAService {
         // QnAEntity 생성
         QnAEntity qnaEntity = addQnAEntity(qnARegisterDTO, customer, product, creator);
 
+        // 이미지 처리 및 저장
+        if (qnARegisterDTO.getQnaImages() != null && !qnARegisterDTO.getQnaImages().isEmpty()) {
+            List<QnAImageEntity> qnaImages = qnARegisterDTO.getQnaImages().stream()
+                    .map(imageDto -> QnAImageEntity.builder()
+                            .qnaEntity(qnaEntity) // 연관 관계 설정
+                            .qnaImageUrl(imageDto.getQnaImageUrl()) // 업로드된 이미지 URL
+                            .build())
+                    .collect(Collectors.toList());
+
+            // QnAEntity와 연관 관계 설정
+            qnaImages.forEach(qnaEntity::addQnAImage);
+        }
+
         qnARepository.save(qnaEntity);
 
         log.info("QnA 등록 완료 ID: {}", qnaEntity.getQnaNo());
@@ -65,6 +82,33 @@ public class QnAService {
                 .creatorEntity(creator)
                 .build();
     }
+
+    public List<QnAImageDTO> saveQnAImages(Long qnaNo, List<QnAImageDTO> qnAImageDTOS) {
+        QnAEntity qna = entityManager.find(QnAEntity.class, qnaNo);
+        if (qna != null) {
+            throw new IllegalArgumentException("Invalid qnaNo: " + qnaNo);
+        }
+
+        List<QnAImageDTO> savedImageDTOs = new ArrayList<>();
+
+        for (QnAImageDTO qnAImageDTO : qnAImageDTOS) {
+            QnAImageEntity imageEntity = QnAImageEntity.builder()
+                    .qnaImageUrl(qnAImageDTO.getQnaImageUrl())
+                    .qnaImageOrd(qnAImageDTO.getQnaImageOrd())
+                    .qnaEntity(qna)
+                    .build();
+
+            entityManager.persist(imageEntity);
+
+            savedImageDTOs.add(QnAImageDTO.builder()
+                    .qnaImageUrl(imageEntity.getQnaImageUrl())
+                    .qnaImageOrd(imageEntity.getQnaImageOrd())
+                    .build());
+        }
+
+        return qnAImageDTOS;
+    }
+
 
     // qna 리스트
     public List<QnAListDTO> getAllQnA(Long qnaNo) {
