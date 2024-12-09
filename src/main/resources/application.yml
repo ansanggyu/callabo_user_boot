@@ -56,6 +56,18 @@ org:
     upload:
       path: upload
 
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    s3:
+      bucket: oz-wizard-bucket
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+
 logging:
   level:
     org.springframework.security.web: TRACE

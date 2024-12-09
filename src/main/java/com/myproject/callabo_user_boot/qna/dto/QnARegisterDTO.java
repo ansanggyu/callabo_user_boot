@@ -19,5 +19,5 @@ public class QnARegisterDTO {
 
     private String customerId;
 
-    private List<String> qnaImages;
+    private List<QnAImageDTO> qnaImages;
 }

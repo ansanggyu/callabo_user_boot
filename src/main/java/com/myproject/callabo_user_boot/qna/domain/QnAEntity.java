@@ -10,6 +10,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "qna")
 @Builder
@@ -40,4 +43,15 @@ public class QnAEntity extends BasicEntity {
 
     @Column(name = "answer")
     private String answer;
+
+    @OneToMany(mappedBy = "qnaEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QnAImageEntity> qnAImages = new ArrayList<>();
+
+    public void changeQuestion(String question) { this.question = question; }
+
+    public QnAEntity changeQnAImages(List<QnAImageEntity> qnAImages) {
+        this.qnAImages.clear(); // 기존 이미지 삭제
+        this.qnAImages.addAll(qnAImages); // 새로운 이미지 추가
+        return this;
+    }
 }

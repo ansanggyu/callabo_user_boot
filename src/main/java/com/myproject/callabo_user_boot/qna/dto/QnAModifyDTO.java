@@ -10,15 +10,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class QnAReadDTO {
+public class QnAModifyDTO {
+
+    private Long qnaNo;
 
     private String question;
 
-    private LocalDateTime createdAt;
-
-    private String answer;
-
-    private String customerId;
-
     private List<QnAImageDTO> qnaImages;
+
+    private LocalDateTime updatedAt;
 }

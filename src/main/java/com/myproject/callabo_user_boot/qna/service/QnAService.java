@@ -7,16 +7,20 @@ import com.myproject.callabo_user_boot.customer.repository.CustomerRepository;
 import com.myproject.callabo_user_boot.product.domain.ProductEntity;
 import com.myproject.callabo_user_boot.product.repository.ProductRepository;
 import com.myproject.callabo_user_boot.qna.domain.QnAEntity;
-import com.myproject.callabo_user_boot.qna.dto.QnAListDTO;
-import com.myproject.callabo_user_boot.qna.dto.QnAReadDTO;
-import com.myproject.callabo_user_boot.qna.dto.QnARegisterDTO;
+import com.myproject.callabo_user_boot.qna.domain.QnAImageEntity;
+import com.myproject.callabo_user_boot.qna.dto.*;
 import com.myproject.callabo_user_boot.qna.repository.QnARepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.myproject.callabo_user_boot.qna.domain.QQnAEntity.qnAEntity;
 
 @Service
 @Transactional
@@ -71,13 +75,21 @@ public class QnAService {
     public QnAReadDTO readQnA(Long qnaNo) {
         log.info("QnA 조회 요청 :", qnaNo);
 
-        QnAEntity  qnAEntity = qnARepository.findById(qnaNo)
+        QnAEntity qnaEntity = qnARepository.findById(qnaNo)
                 .orElseThrow(() -> new RuntimeException("Qna not found"));
 
         return QnAReadDTO.builder()
-                .question(qnAEntity.getQuestion())
-                .answer(qnAEntity.getAnswer())
-                .createdAt(qnAEntity.getCreatedAt())
+                .question(qnaEntity.getQuestion())
+                .answer(qnaEntity.getAnswer())
+                .createdAt(qnaEntity.getCreatedAt())
+                .customerId(qnaEntity.getCustomerEntity().getCustomerId())
+                .qnaImages(qnaEntity.getQnAImages().stream()
+                        .map(image -> QnAImageDTO.builder()
+                                .qnaImageNo(image.getQnaImageNo())
+                                .qnaImageOrd(image.getQnaImageOrd())
+                                .qnaImageUrl(image.getQnaImageUrl())
+                                .build())
+                        .toList())
                 .build();
     }
 }
