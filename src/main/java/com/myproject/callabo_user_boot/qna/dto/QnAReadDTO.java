@@ -10,7 +10,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class QnAReadDTO {
+public class
+QnAReadDTO {
 
     private String question;
 
