@@ -17,8 +17,6 @@ public class QnAListDTO {
 
     private String question;
 
-    private String customerId;
-
     private LocalDateTime createdAt;
 
     @JsonProperty("createdAt")

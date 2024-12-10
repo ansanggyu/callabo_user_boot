@@ -22,14 +22,11 @@ public class QnASearchImpl extends QuerydslRepositorySupport implements QnASearc
     public List<QnAListDTO> QnAList(Long qnaNo) {
 
         QQnAEntity qna = QQnAEntity.qnAEntity;
-        QCustomerEntity customer = QCustomerEntity.customerEntity;
 
         JPQLQuery<QnAListDTO> query = from(qna)
-                .leftJoin(customer).on(qna.customerEntity.eq(customer))
                 .select(Projections.bean(QnAListDTO.class,
                         qna.qnaNo,
                         qna.question,
-                        customer.customerId,
                         qna.createdAt
                         ));
 

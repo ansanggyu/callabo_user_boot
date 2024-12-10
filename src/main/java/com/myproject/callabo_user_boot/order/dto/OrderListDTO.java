@@ -10,6 +10,7 @@ import java.util.List;
 public class OrderListDTO {
     private Long orderNo;               // 주문 번호
     private String orderDate;           // 주문 날짜
+    private String creatorId;
     private String creatorName;         // 제작자 이름
     private String customerName;        // 고객 이름
     private Integer totalAmount;        // 총 수량
