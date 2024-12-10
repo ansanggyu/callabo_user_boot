@@ -15,6 +15,7 @@ import java.util.List;
 @Log4j2
 public class ReviewService {
     private final ReviewRepository reviewRepository;
+
     private final ReviewSearch reviewSearch;
 
     public List<ReviewListDTO> getReviewList(String creatorId, Long productNo) {

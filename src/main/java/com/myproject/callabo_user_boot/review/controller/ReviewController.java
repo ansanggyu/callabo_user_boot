@@ -20,12 +20,6 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-//    @GetMapping("/list")
-//    public ResponseEntity<List<ReviewListDTO>> getReviewList(@RequestParam("creatorId") String creatorId) {
-//        List<ReviewListDTO> response = reviewService.getReviewList(creatorId);
-//        return ResponseEntity.ok(response);
-//    }
-
     @GetMapping("/list")
     public ResponseEntity<List<ReviewListDTO>> getReviewList(
             @RequestParam(value = "creatorId", required = false) String creatorId,
@@ -36,6 +30,4 @@ public class ReviewController {
         List<ReviewListDTO> response = reviewService.getReviewList(creatorId, productNo);
         return ResponseEntity.ok(response);
     }
-
-
 }

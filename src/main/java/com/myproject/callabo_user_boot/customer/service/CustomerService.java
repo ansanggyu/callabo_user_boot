@@ -1,10 +1,8 @@
 package com.myproject.callabo_user_boot.customer.service;
 
 import com.myproject.callabo_user_boot.customer.domain.CustomerEntity;
-import com.myproject.callabo_user_boot.customer.dto.CustomerDTO;
-import com.myproject.callabo_user_boot.customer.dto.KakaoLoginDTO;
-import com.myproject.callabo_user_boot.customer.dto.LikedCreatorDTO;
-import com.myproject.callabo_user_boot.customer.dto.LikedProductDTO;
+import com.myproject.callabo_user_boot.customer.domain.ProductLikeEntity;
+import com.myproject.callabo_user_boot.customer.dto.*;
 import com.myproject.callabo_user_boot.customer.repository.CustomerRepository;
 import com.myproject.callabo_user_boot.product.domain.ProductEntity;
 import com.myproject.callabo_user_boot.product.domain.ProductImageEntity;
@@ -132,58 +130,6 @@ public class CustomerService {
         }
     }
 
-    // 상품 좋아요
-    public List<LikedProductDTO> getLikedProducts(String customerId) {
-        String jpql = "SELECT pl, p, pi " +
-                "FROM ProductLikeEntity pl " +
-                "JOIN pl.productEntity p " +
-                "LEFT JOIN p.productImages pi ON pi.productImageOrd = 0 " +
-                "WHERE pl.customerEntity.customerId = :customerId AND pl.likeStatus = true";
-
-        List<Object[]> result = entityManager.createQuery(jpql, Object[].class)
-                .setParameter("customerId", customerId) // 파라미터로 customerId 전달
-                .getResultList();
-
-        // DTO 빌더를 이용해 결과 생성
-        return result.stream()
-                .map(row -> LikedProductDTO.builder()
-                        .productId(((ProductEntity) row[1]).getProductNo())
-                        .productName(((ProductEntity) row[1]).getProductName())
-                        .productImageUrl(((ProductImageEntity) row[2]) != null ? ((ProductImageEntity) row[2]).getProductImageUrl() : null)
-                        .productPrice(((ProductEntity) row[1]).getProductPrice())
-                        .build())
-                .toList();
-    }
-
-    // 제작자 좋아요
-    public List<LikedCreatorDTO> getLikedCreators(String customerId) {
-        String jpql = "SELECT cf.creatorEntity.creatorId, " +
-                "       cf.creatorEntity.logoImg, " +
-                "       cf.creatorEntity.creatorName, " +
-                "       COUNT(cf.followStatus) " +
-                "FROM CreatorFollowEntity cf " +
-                "WHERE cf.customerEntity.customerId = :customerId " +
-                "AND cf.followStatus = true " +
-                "GROUP BY cf.creatorEntity.creatorId, " +
-                "         cf.creatorEntity.logoImg, " +
-                "         cf.creatorEntity.creatorName";
-
-        List<Object[]> results = entityManager.createQuery(jpql, Object[].class)
-                .setParameter("customerId", customerId)
-                .getResultList();
-
-        // DTO로 매핑
-        return results.stream()
-                .map(row -> LikedCreatorDTO.builder()
-                        .creatorId((String) row[0])
-                        .profileImg((String) row[1]) // logoImg를 profileImg에 매핑
-                        .name((String) row[2])
-                        .likes(((Long) row[3]).intValue()) // COUNT 결과를 정수로 변환
-                        .build()
-                ).toList();
-    }
-
-    // 사용자 정보 업데이트
     public void updateCustomer(String customerId, CustomerDTO customerDTO) {
         // customerId로 기존 엔티티 조회
         CustomerEntity customer = customerRepository.findById(customerId)
@@ -199,5 +145,90 @@ public class CustomerService {
         customerRepository.save(customer);
     }
 
+    public List<LikedProductDTO> getLikedProducts(String customerId) {
+        String jpql = """
+                SELECT pl, p, pi
+                FROM ProductLikeEntity pl
+                JOIN pl.productEntity p
+                LEFT JOIN p.productImages pi ON pi.productImageOrd = 0
+                WHERE pl.customerEntity.customerId = :customerId AND pl.likeStatus = true
+                """;
+
+        List<Object[]> result = entityManager.createQuery(jpql, Object[].class)
+                .setParameter("customerId", customerId)
+                .getResultList();
+
+        // DTO 빌더를 이용해 결과 생성
+        return result.stream()
+                .map(row -> LikedProductDTO.builder()
+                        .productId(((ProductEntity) row[1]).getProductNo())
+                        .productName(((ProductEntity) row[1]).getProductName())
+                        .productImageUrl(((ProductImageEntity) row[2]) != null ? ((ProductImageEntity) row[2]).getProductImageUrl() : null)
+                        .productPrice(((ProductEntity) row[1]).getProductPrice())
+                        .build())
+                .toList();
+    }
+
+    public List<LikedCreatorDTO> getLikedCreators(String customerId) {
+        String jpql = """
+                SELECT cf.creatorEntity.creatorId,
+                       cf.creatorEntity.logoImg,
+                       cf.creatorEntity.creatorName,
+                       COUNT(cf.followStatus)
+                FROM CreatorFollowEntity cf
+                WHERE cf.customerEntity.customerId = :customerId
+                AND cf.followStatus = true
+                GROUP BY cf.creatorEntity.creatorId,
+                         cf.creatorEntity.logoImg,
+                         cf.creatorEntity.creatorName
+                """;
+
+        List<Object[]> results = entityManager.createQuery(jpql, Object[].class)
+                .setParameter("customerId", customerId)
+                .getResultList();
+
+        // DTO로 매핑
+        return results.stream()
+                .map(row -> LikedCreatorDTO.builder()
+                        .creatorId((String) row[0])
+                        .profileImg((String) row[1]) // logoImg를 profileImg에 매핑
+                        .name((String) row[2])
+                        .likes(((Long) row[3]).intValue()) // COUNT 결과를 정수로 변환
+                        .build()
+                ).toList();
+    }
+    public void toggleProductLike(ProductLikeDTO productLikeDTO) {
+        String jpql = """
+            SELECT pl
+            FROM ProductLikeEntity pl
+            WHERE pl.customerEntity.customerId = :customerId
+            AND pl.productEntity.productNo = :productId
+            """;
+
+        List<ProductLikeEntity> existingLikes = entityManager.createQuery(jpql, ProductLikeEntity.class)
+                .setParameter("customerId", productLikeDTO.getCustomerId())
+                .setParameter("productId", Long.parseLong(productLikeDTO.getProductId()))
+                .getResultList();
+        if (!existingLikes.isEmpty()) {
+            // 기존 좋아요 상태 업데이트
+            ProductLikeEntity likeEntity = existingLikes.get(0);
+            likeEntity.setLikeStatus(productLikeDTO.getLikeStatus());
+            entityManager.merge(likeEntity);
+        } else {
+            // ProductEntity와 CustomerEntity 조회
+            ProductEntity productEntity = entityManager.find(ProductEntity.class, Long.parseLong(productLikeDTO.getProductId()));
+            CustomerEntity customerEntity = entityManager.find(CustomerEntity.class, productLikeDTO.getCustomerId());
+            if (productEntity == null || customerEntity == null) {
+                throw new IllegalArgumentException("해당 Product 또는 Customer가 존재하지 않습니다.");
+            }
+            // 새로운 ProductLikeEntity 생성 및 저장
+            ProductLikeEntity newLikeEntity = new ProductLikeEntity();
+            newLikeEntity.setProductEntity(productEntity);
+            newLikeEntity.setCustomerEntity(customerEntity);
+            newLikeEntity.setLikeStatus(productLikeDTO.getLikeStatus());
+
+            entityManager.persist(newLikeEntity);
+        }
+    }
 }
 

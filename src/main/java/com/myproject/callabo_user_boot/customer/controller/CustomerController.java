@@ -1,16 +1,13 @@
 package com.myproject.callabo_user_boot.customer.controller;
-import com.myproject.callabo_user_boot.customer.dto.CustomerDTO;
-import com.myproject.callabo_user_boot.customer.dto.KakaoLoginDTO;
-import com.myproject.callabo_user_boot.customer.dto.LikedCreatorDTO;
-import com.myproject.callabo_user_boot.customer.dto.TokenResponseDTO;
+import com.myproject.callabo_user_boot.customer.dto.*;
 import com.myproject.callabo_user_boot.customer.exception.CustomerException;
 import com.myproject.callabo_user_boot.customer.service.CustomerService;
-import com.myproject.callabo_user_boot.customer.dto.LikedProductDTO;
 import com.myproject.callabo_user_boot.security.util.JWTUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,14 +20,17 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Log4j2
 public class CustomerController {
+
     private final CustomerService customerService;
     private final JWTUtil jwtUtil;
+
     @Value("${org.oz.accessTime}")
     private int accessTime;
     @Value("${org.oz.refreshTime}")
     private int refreshTime;
     @Value("${org.oz.alwaysNew}")
     private boolean alwaysNew;
+
     // Kakao 로그인 시 토큰 생성 엔드포인트
     @RequestMapping("kakao")
     public ResponseEntity<TokenResponseDTO> kakaoToken(String accessToken) {
@@ -118,7 +118,7 @@ public class CustomerController {
     }
 
     @GetMapping("/likedproducts")
-    public ResponseEntity<List<LikedProductDTO>> getLikedProducts(@RequestParam(required = true) String customerId) {
+    public ResponseEntity<List<LikedProductDTO>> getLikedProducts(@RequestParam String customerId) {
         if (customerId == null || customerId.isEmpty()) {
             return ResponseEntity.badRequest().body(Collections.emptyList());
         }
@@ -144,4 +144,16 @@ public class CustomerController {
         customerService.updateCustomer(customerId, customerDTO);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/like")
+    public ResponseEntity<Void> toggleProductLike(@RequestBody ProductLikeDTO productLikeDTO) {
+        try {
+            customerService.toggleProductLike(productLikeDTO);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("상품 좋아요 상태 변경 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }
