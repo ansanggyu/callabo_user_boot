@@ -1,5 +1,6 @@
 package com.myproject.callabo_user_boot.review.service;
 
+import com.myproject.callabo_user_boot.product.repository.ProductRepository;
 import com.myproject.callabo_user_boot.review.dto.ReviewListDTO;
 import com.myproject.callabo_user_boot.review.dto.ReviewRegisterRequestDTO;
 import com.myproject.callabo_user_boot.review.repository.ReviewRepository;
@@ -15,6 +16,7 @@ import java.util.List;
 @Log4j2
 public class ReviewService {
     private final ReviewRepository reviewRepository;
+    private final ProductRepository productRepository;
 
     private final ReviewSearch reviewSearch;
 
@@ -26,5 +28,6 @@ public class ReviewService {
         log.info("Fetching reviews for creatorId: {}", creatorId);
         return reviewSearch.reviewListByCreator(creatorId);
     }
+
 
 }
