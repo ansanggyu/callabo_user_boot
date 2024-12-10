@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.myproject.callabo_user_boot.qna.domain.QQnAEntity.qnAEntity;
-
 @Service
 @Transactional
 @RequiredArgsConstructor
