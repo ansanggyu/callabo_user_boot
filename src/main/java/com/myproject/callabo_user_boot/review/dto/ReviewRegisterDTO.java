@@ -8,10 +8,12 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReviewRegisterRequestDTO {
+@Getter
+public class ReviewRegisterDTO {
     private Integer rating;                 // 평점
     private String comment;                // 리뷰 내용
     private Long productNo;                // 상품 번호
+    private String creatorId;              // 제작자 ID
     private String customerId;             // 고객 ID
-    private List<ReviewImageDTO> reviewImageUrls;  // 첨부 이미지 URL
+    private List<ReviewImageDTO> reviewImages;  // 첨부 이미지 URL
 }

@@ -109,9 +109,9 @@ public class QnAService {
     }
 
 
-    // qna 리스트
-    public List<QnAListDTO> getAllQnA(Long qnaNo) {
-        return qnARepository.QnAList(qnaNo);
+    public List<QnAListDTO> getAllQnAByCustomer(Long qnaNo, String customerId) {
+        log.info("QnA 리스트 요청: qnaNo={}, customerId={}", qnaNo, customerId);
+        return qnARepository.QnAList(qnaNo, customerId);
     }
 
     // qna 조회
