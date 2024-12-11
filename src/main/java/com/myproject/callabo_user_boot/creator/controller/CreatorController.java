@@ -26,13 +26,28 @@ public class CreatorController {
         return ResponseEntity.ok(creators);
     }
 
+    // 팔로우 상태 변경
     @PostMapping("/follow")
-    public ResponseEntity<Void> followCreator(@RequestBody CreatorFollowDTO creatorFollowDTO) {
+    public ResponseEntity<Void> toggleFollowStatus(@RequestBody CreatorFollowDTO creatorFollowDTO) {
         try {
             creatorService.toggleFollowStatus(creatorFollowDTO);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             log.error("팔로우 상태 변경 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // 특정 고객의 제작자 팔로우 상태 확인
+    @GetMapping("/follow/status")
+    public ResponseEntity<Boolean> checkFollowStatus(
+            @RequestParam("customerId") String customerId,
+            @RequestParam("creatorId") String creatorId) {
+        try {
+            boolean isFollowing = creatorService.checkFollowStatus(customerId, creatorId);
+            return ResponseEntity.ok(isFollowing);
+        } catch (Exception e) {
+            log.error("팔로우 상태 확인 중 오류 발생", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

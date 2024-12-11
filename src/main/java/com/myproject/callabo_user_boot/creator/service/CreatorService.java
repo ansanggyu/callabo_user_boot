@@ -29,12 +29,13 @@ public class CreatorService {
 
     @Transactional
     public void toggleFollowStatus(CreatorFollowDTO creatorFollowDTO) {
+        // JPQL을 사용하여 현재 상태를 조회
         String jpql = """
-                SELECT cf
-                FROM CreatorFollowEntity cf
-                WHERE cf.customerEntity.customerId = :customerId
-                AND cf.creatorEntity.creatorId = :creatorId
-                """;
+        SELECT cf
+        FROM CreatorFollowEntity cf
+        WHERE cf.customerEntity.customerId = :customerId
+        AND cf.creatorEntity.creatorId = :creatorId
+    """;
 
         List<CreatorFollowEntity> existingFollows = entityManager.createQuery(jpql, CreatorFollowEntity.class)
                 .setParameter("customerId", creatorFollowDTO.getCustomerId())
@@ -42,12 +43,12 @@ public class CreatorService {
                 .getResultList();
 
         if (!existingFollows.isEmpty()) {
-            // 기존 팔로우 상태 업데이트
+            // 기존 팔로우 상태가 있으면 토글 (팔로우 -> 언팔로우, 언팔로우 -> 팔로우)
             CreatorFollowEntity followEntity = existingFollows.get(0);
-            followEntity.setFollowStatus(creatorFollowDTO.getFollowStatus());
+            followEntity.setFollowStatus(!followEntity.getFollowStatus()); // 현재 상태를 반대로 설정
             entityManager.merge(followEntity);
         } else {
-            // CreatorEntity와 CustomerEntity 조회
+            // 팔로우 데이터가 없으면 새로 생성
             CreatorEntity creatorEntity = entityManager.find(CreatorEntity.class, creatorFollowDTO.getCreatorId());
             CustomerEntity customerEntity = entityManager.find(CustomerEntity.class, creatorFollowDTO.getCustomerId());
 
@@ -55,14 +56,33 @@ public class CreatorService {
                 throw new IllegalArgumentException("해당 Creator 또는 Customer가 존재하지 않습니다.");
             }
 
-            // 새로운 CreatorFollowEntity 생성 및 저장
+            // 새로운 팔로우 엔티티 생성
             CreatorFollowEntity newFollowEntity = CreatorFollowEntity.builder()
                     .creatorEntity(creatorEntity)
                     .customerEntity(customerEntity)
-                    .followStatus(creatorFollowDTO.getFollowStatus())
+                    .followStatus(true) // 기본적으로 팔로우 상태로 설정
                     .build();
 
             entityManager.persist(newFollowEntity);
         }
     }
+
+    public boolean checkFollowStatus(String customerId, String creatorId) {
+        String jpql = """
+        SELECT COUNT(cf)
+        FROM CreatorFollowEntity cf
+        WHERE cf.customerEntity.customerId = :customerId
+        AND cf.creatorEntity.creatorId = :creatorId
+        AND cf.followStatus = true
+    """;
+
+        Long count = entityManager.createQuery(jpql, Long.class)
+                .setParameter("customerId", customerId)
+                .setParameter("creatorId", creatorId)
+                .getSingleResult();
+
+        return count > 0; // 팔로우 상태가 존재하면 true 반환
+    }
+
+
 }
