@@ -2,8 +2,16 @@ package com.myproject.callabo_user_boot.customer.domain;
 
 import com.myproject.callabo_user_boot.product.domain.ProductEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "product_like")
 public class ProductLikeEntity {
 

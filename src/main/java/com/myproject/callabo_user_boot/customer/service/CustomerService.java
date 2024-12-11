@@ -1,10 +1,8 @@
 package com.myproject.callabo_user_boot.customer.service;
 
 import com.myproject.callabo_user_boot.customer.domain.CustomerEntity;
-import com.myproject.callabo_user_boot.customer.dto.CustomerDTO;
-import com.myproject.callabo_user_boot.customer.dto.KakaoLoginDTO;
-import com.myproject.callabo_user_boot.customer.dto.LikedCreatorDTO;
-import com.myproject.callabo_user_boot.customer.dto.LikedProductDTO;
+import com.myproject.callabo_user_boot.customer.domain.ProductLikeEntity;
+import com.myproject.callabo_user_boot.customer.dto.*;
 import com.myproject.callabo_user_boot.customer.repository.CustomerRepository;
 import com.myproject.callabo_user_boot.product.domain.ProductEntity;
 import com.myproject.callabo_user_boot.product.domain.ProductImageEntity;
@@ -132,15 +130,32 @@ public class CustomerService {
         }
     }
 
+    public void updateCustomer(String customerId, CustomerDTO customerDTO) {
+        // customerId로 기존 엔티티 조회
+        CustomerEntity customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 고객을 찾을 수 없습니다."));
+
+        // DTO 데이터를 엔티티에 반영
+        customer.setCustomerPhone(customerDTO.getCustomerPhone());
+        customer.setCustomerZipcode(customerDTO.getCustomerZipcode());
+        customer.setCustomerAddr(customerDTO.getCustomerAddr());
+        customer.setCustomerAddrDetail(customerDTO.getCustomerAddrDetail());
+
+        // 변경사항 저장
+        customerRepository.save(customer);
+    }
+
     public List<LikedProductDTO> getLikedProducts(String customerId) {
-        String jpql = "SELECT pl, p, pi " +
-                "FROM ProductLikeEntity pl " +
-                "JOIN pl.productEntity p " +
-                "LEFT JOIN p.productImages pi ON pi.productImageOrd = 1 " +
-                "WHERE pl.customerEntity.customerId = :customerId AND pl.likeStatus = true";
+        String jpql = """
+                SELECT pl, p, pi
+                FROM ProductLikeEntity pl
+                JOIN pl.productEntity p
+                LEFT JOIN p.productImages pi ON pi.productImageOrd = 0
+                WHERE pl.customerEntity.customerId = :customerId AND pl.likeStatus = true
+                """;
 
         List<Object[]> result = entityManager.createQuery(jpql, Object[].class)
-                .setParameter("customerId", customerId) // 파라미터로 customerId 전달
+                .setParameter("customerId", customerId)
                 .getResultList();
 
         // DTO 빌더를 이용해 결과 생성
@@ -155,16 +170,18 @@ public class CustomerService {
     }
 
     public List<LikedCreatorDTO> getLikedCreators(String customerId) {
-        String jpql = "SELECT cf.creatorEntity.creatorId, " +
-                "       cf.creatorEntity.logoImg, " +
-                "       cf.creatorEntity.creatorName, " +
-                "       COUNT(cf.followStatus) " +
-                "FROM CreatorFollowEntity cf " +
-                "WHERE cf.customerEntity.customerId = :customerId " +
-                "AND cf.followStatus = true " +
-                "GROUP BY cf.creatorEntity.creatorId, " +
-                "         cf.creatorEntity.logoImg, " +
-                "         cf.creatorEntity.creatorName";
+        String jpql = """
+                SELECT cf.creatorEntity.creatorId,
+                       cf.creatorEntity.logoImg,
+                       cf.creatorEntity.creatorName,
+                       COUNT(cf.followStatus)
+                FROM CreatorFollowEntity cf
+                WHERE cf.customerEntity.customerId = :customerId
+                AND cf.followStatus = true
+                GROUP BY cf.creatorEntity.creatorId,
+                         cf.creatorEntity.logoImg,
+                         cf.creatorEntity.creatorName
+                """;
 
         List<Object[]> results = entityManager.createQuery(jpql, Object[].class)
                 .setParameter("customerId", customerId)
@@ -180,21 +197,56 @@ public class CustomerService {
                         .build()
                 ).toList();
     }
+    public void toggleProductLike(ProductLikeDTO productLikeDTO) {
+        // JPQL을 사용하여 현재 상태를 조회
+        String jpql = """
+        SELECT pl
+        FROM ProductLikeEntity pl
+        WHERE pl.customerEntity.customerId = :customerId
+        AND pl.productEntity.productNo = :productId
+        """;
 
-    // 사용자 정보 업데이트
-    public void updateCustomer(String customerId, CustomerDTO customerDTO) {
-        // customerId로 기존 엔티티 조회
-        CustomerEntity customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 고객을 찾을 수 없습니다."));
+        List<ProductLikeEntity> existingLikes = entityManager.createQuery(jpql, ProductLikeEntity.class)
+                .setParameter("customerId", productLikeDTO.getCustomerId())
+                .setParameter("productId", Long.parseLong(productLikeDTO.getProductId()))
+                .getResultList();
 
-        // DTO 데이터를 엔티티에 반영
-        customer.setCustomerPhone(customerDTO.getCustomerPhone());
-        customer.setCustomerZipcode(customerDTO.getCustomerZipcode());
-        customer.setCustomerAddr(customerDTO.getCustomerAddr());
-        customer.setCustomerAddrDetail(customerDTO.getCustomerAddrDetail());
+        if (!existingLikes.isEmpty()) {
+            // 기존 좋아요 상태가 있으면 토글 (좋아요 -> 취소, 취소 -> 좋아요)
+            ProductLikeEntity likeEntity = existingLikes.get(0);
+            likeEntity.setLikeStatus(!likeEntity.getLikeStatus()); // 현재 상태를 반대로 설정
+            entityManager.merge(likeEntity);
+        } else {
+            // 좋아요 데이터가 없으면 새로 생성
+            ProductEntity productEntity = entityManager.find(ProductEntity.class, Long.parseLong(productLikeDTO.getProductId()));
+            CustomerEntity customerEntity = entityManager.find(CustomerEntity.class, productLikeDTO.getCustomerId());
+            if (productEntity == null || customerEntity == null) {
+                throw new IllegalArgumentException("해당 Product 또는 Customer가 존재하지 않습니다.");
+            }
+            // 새로운 좋아요 엔티티 생성
+            ProductLikeEntity newLikeEntity = new ProductLikeEntity();
+            newLikeEntity.setProductEntity(productEntity);
+            newLikeEntity.setCustomerEntity(customerEntity);
+            newLikeEntity.setLikeStatus(true); // 기본적으로 좋아요 상태로 설정
+            entityManager.persist(newLikeEntity);
+        }
+    }
 
-        // 변경사항 저장
-        customerRepository.save(customer);
+    public boolean checkProductLikeStatus(String customerId, Long productId) {
+        String jpql = """
+        SELECT COUNT(pl)
+        FROM ProductLikeEntity pl
+        WHERE pl.customerEntity.customerId = :customerId
+        AND pl.productEntity.productNo = :productId
+        AND pl.likeStatus = true
+    """;
+
+        Long count = entityManager.createQuery(jpql, Long.class)
+                .setParameter("customerId", customerId)
+                .setParameter("productId", productId)
+                .getSingleResult();
+
+        return count > 0; // 좋아요 상태가 존재하면 true 반환
     }
 
 }

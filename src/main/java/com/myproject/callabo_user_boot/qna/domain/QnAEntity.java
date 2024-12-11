@@ -5,9 +5,20 @@ import com.myproject.callabo_user_boot.creator.domain.CreatorEntity;
 import com.myproject.callabo_user_boot.customer.domain.CustomerEntity;
 import com.myproject.callabo_user_boot.product.domain.ProductEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "qna")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
 public class QnAEntity extends BasicEntity {
 
     @Id
@@ -30,6 +41,20 @@ public class QnAEntity extends BasicEntity {
     @Column(name = "question", nullable = false)
     private String question;
 
-    @Column(name = "answer", nullable = false)
+    @Column(name = "answer")
     private String answer;
+
+    @OneToMany(mappedBy = "qnaEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QnAImageEntity> qnAImages = new ArrayList<>();
+
+    public void changeQuestion(String question) { this.question = question; }
+
+    public void addQnAImage(QnAImageEntity qnAImage) {
+        if (qnAImages == null) {
+            qnAImages = new ArrayList<>();
+        }
+
+        qnAImages.add(qnAImage);
+        qnAImage.linkToQnA(this);
+    }
 }

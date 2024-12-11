@@ -2,11 +2,17 @@ package com.myproject.callabo_user_boot.customer.domain;
 
 import com.myproject.callabo_user_boot.creator.domain.CreatorEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "creator_follow")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreatorFollowEntity {
 
     @Id
