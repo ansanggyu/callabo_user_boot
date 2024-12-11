@@ -9,8 +9,6 @@ import lombok.*;
 @Getter
 public class QnAImageDTO {
 
-    private Integer qnaImageNo;
-
     private String qnaImageUrl;
 
     private Integer qnaImageOrd;

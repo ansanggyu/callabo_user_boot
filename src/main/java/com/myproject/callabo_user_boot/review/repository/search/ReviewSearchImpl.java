@@ -209,4 +209,92 @@ public class ReviewSearchImpl extends QuerydslRepositorySupport implements Revie
         return dtoList;
     }
 
+    // 소비자 개개인 화면에서 내가쓴 리뷰 리스트
+    @Override
+    public List<ReviewListDTO> reviewListByCustomer(String customerId) {
+        QReviewEntity review = QReviewEntity.reviewEntity;
+        QProductEntity product = QProductEntity.productEntity;
+        QCreatorEntity creator = QCreatorEntity.creatorEntity;
+        QReviewImageEntity reviewImage = QReviewImageEntity.reviewImageEntity;
+        QProductImageEntity productImage = QProductImageEntity.productImageEntity;
+
+        // 기본 리뷰 데이터 조회
+        JPQLQuery<ReviewListDTO> query = from(review)
+                .leftJoin(review.productEntity, product)
+                .leftJoin(product.creatorEntity, creator)
+                .where(review.customerEntity.customerId.eq(customerId)) // String 타입 customerId 조건 추가
+                .select(Projections.bean(ReviewListDTO.class,
+                        review.reviewNo,
+                        review.customerEntity.customerName.as("customerName"),
+                        review.rating,
+                        review.createdAt.as("createdAt"),
+                        creator.creatorName.as("creatorName"),
+                        product.productNo,
+                        product.productPrice,
+                        product.productName,
+                        product.productDescription,
+                        review.comment,
+                        review.reply
+                ));
+
+        List<ReviewListDTO> dtoList = query.fetch();
+
+        // 리뷰 이미지 데이터 조회
+        List<Tuple> imageTuples = from(reviewImage)
+                .join(reviewImage.reviewEntity, review)
+                .select(
+                        reviewImage.reviewEntity.reviewNo,
+                        Projections.bean(ReviewImageDTO.class,
+                                reviewImage.reviewImageNo,
+                                reviewImage.reviewImageUrl,
+                                reviewImage.reviewImageOrd
+                        )
+                )
+                .fetch();
+
+        // 상품 이미지 데이터 조회
+        List<Tuple> productImageTuples = from(productImage)
+                .join(productImage.productEntity, product)
+                .select(
+                        productImage.productEntity.productNo,
+                        Projections.bean(ProductImageDTO.class,
+                                productImage.productImageNo,
+                                productImage.productImageUrl,
+                                productImage.productImageOrd
+                        )
+                )
+                .fetch();
+
+        // 리뷰 번호를 기준으로 ReviewImageDTO 리스트 매핑
+        Map<Long, List<ReviewImageDTO>> reviewImageMap = imageTuples.stream()
+                .collect(Collectors.groupingBy(
+                        tuple -> tuple.get(reviewImage.reviewEntity.reviewNo),
+                        Collectors.mapping(
+                                tuple -> tuple.get(1, ReviewImageDTO.class),
+                                Collectors.toList()
+                        )
+                ));
+
+        // 상품 번호를 기준으로 ProductImageDTO 리스트 매핑
+        Map<Long, List<ProductImageDTO>> productImageMap = productImageTuples.stream()
+                .collect(Collectors.groupingBy(
+                        tuple -> tuple.get(productImage.productEntity.productNo),
+                        Collectors.mapping(
+                                tuple -> tuple.get(1, ProductImageDTO.class),
+                                Collectors.toList()
+                        )
+                ));
+
+        // DTO에 리뷰 이미지 리스트와 상품 이미지 리스트 매핑
+        dtoList.forEach(dto -> {
+            Long reviewNo = dto.getReviewNo();
+            dto.setReviewImages(reviewImageMap.getOrDefault(reviewNo, Collections.emptyList()));
+
+            Long productNoKey = dto.getProductNo();
+            dto.setProductImages(productImageMap.getOrDefault(productNoKey, Collections.emptyList()));
+        });
+
+        return dtoList;
+    }
+
 }

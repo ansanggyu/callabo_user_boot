@@ -198,37 +198,56 @@ public class CustomerService {
                 ).toList();
     }
     public void toggleProductLike(ProductLikeDTO productLikeDTO) {
+        // JPQL을 사용하여 현재 상태를 조회
         String jpql = """
-            SELECT pl
-            FROM ProductLikeEntity pl
-            WHERE pl.customerEntity.customerId = :customerId
-            AND pl.productEntity.productNo = :productId
-            """;
+        SELECT pl
+        FROM ProductLikeEntity pl
+        WHERE pl.customerEntity.customerId = :customerId
+        AND pl.productEntity.productNo = :productId
+        """;
 
         List<ProductLikeEntity> existingLikes = entityManager.createQuery(jpql, ProductLikeEntity.class)
                 .setParameter("customerId", productLikeDTO.getCustomerId())
                 .setParameter("productId", Long.parseLong(productLikeDTO.getProductId()))
                 .getResultList();
+
         if (!existingLikes.isEmpty()) {
-            // 기존 좋아요 상태 업데이트
+            // 기존 좋아요 상태가 있으면 토글 (좋아요 -> 취소, 취소 -> 좋아요)
             ProductLikeEntity likeEntity = existingLikes.get(0);
-            likeEntity.setLikeStatus(productLikeDTO.getLikeStatus());
+            likeEntity.setLikeStatus(!likeEntity.getLikeStatus()); // 현재 상태를 반대로 설정
             entityManager.merge(likeEntity);
         } else {
-            // ProductEntity와 CustomerEntity 조회
+            // 좋아요 데이터가 없으면 새로 생성
             ProductEntity productEntity = entityManager.find(ProductEntity.class, Long.parseLong(productLikeDTO.getProductId()));
             CustomerEntity customerEntity = entityManager.find(CustomerEntity.class, productLikeDTO.getCustomerId());
             if (productEntity == null || customerEntity == null) {
                 throw new IllegalArgumentException("해당 Product 또는 Customer가 존재하지 않습니다.");
             }
-            // 새로운 ProductLikeEntity 생성 및 저장
+            // 새로운 좋아요 엔티티 생성
             ProductLikeEntity newLikeEntity = new ProductLikeEntity();
             newLikeEntity.setProductEntity(productEntity);
             newLikeEntity.setCustomerEntity(customerEntity);
-            newLikeEntity.setLikeStatus(productLikeDTO.getLikeStatus());
-
+            newLikeEntity.setLikeStatus(true); // 기본적으로 좋아요 상태로 설정
             entityManager.persist(newLikeEntity);
         }
     }
+
+    public boolean checkProductLikeStatus(String customerId, Long productId) {
+        String jpql = """
+        SELECT COUNT(pl)
+        FROM ProductLikeEntity pl
+        WHERE pl.customerEntity.customerId = :customerId
+        AND pl.productEntity.productNo = :productId
+        AND pl.likeStatus = true
+    """;
+
+        Long count = entityManager.createQuery(jpql, Long.class)
+                .setParameter("customerId", customerId)
+                .setParameter("productId", productId)
+                .getSingleResult();
+
+        return count > 0; // 좋아요 상태가 존재하면 true 반환
+    }
+
 }
 

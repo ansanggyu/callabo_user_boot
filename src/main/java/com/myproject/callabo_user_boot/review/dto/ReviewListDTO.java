@@ -25,7 +25,7 @@ public class ReviewListDTO {
 
     private List<ProductImageDTO> productImages; // 상품 이미지 추가
 
-    private int productPrice;
+    private Integer productPrice;
     private String productName;
     private String productDescription;
     private List<ReviewImageDTO> reviewImages;

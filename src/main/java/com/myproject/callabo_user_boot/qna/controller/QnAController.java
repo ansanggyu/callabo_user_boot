@@ -44,11 +44,15 @@ public class QnAController {
         }
     }
 
-    // qna 리스트
-    @GetMapping("/list")
-    public ResponseEntity<List<QnAListDTO>> listQna(Long qnaNo) {
+    @GetMapping("/customer")
+    public ResponseEntity<List<QnAListDTO>> listQna(
+            @RequestParam(value = "qnaNo", required = false) Long qnaNo,
+            @RequestParam("customerId") String customerId) {
 
-        return ResponseEntity.ok(qnAService.getAllQnA(qnaNo));
+        log.info("QnA 리스트 요청: qnaNo={}, customerId={}", qnaNo, customerId);
+
+        List<QnAListDTO> qnaList = qnAService.getAllQnAByCustomer(qnaNo, customerId);
+        return ResponseEntity.ok(qnaList);
     }
 
     // qna 조회
