@@ -27,6 +27,6 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ec2-user@3.34.51.19 \
           "cd /home/ec2-user/callabo_boot/callabo_user_boot && \
-          git pull origin master && \
+          git pull origin main && \
           docker-compose down && \
           docker-compose up -d --build"
