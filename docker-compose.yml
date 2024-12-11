@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: . # Spring Boot 프로젝트 루트 경로
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080" # 백엔드 API 서버
+    restart: always
+    env_file:
+      - .env # AWS 및 Kakao API 키 등 .env 파일에서 환경 변수 로드
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower2
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=300
+    restart: always
