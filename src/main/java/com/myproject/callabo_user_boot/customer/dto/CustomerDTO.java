@@ -1,12 +1,16 @@
 package com.myproject.callabo_user_boot.customer.dto;
 
-import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class CustomerDTO {
 
-    @Pattern(regexp = "^010-\\d{4}-\\d{4}$", message = "전화번호는 숫자 10~11자리여야 합니다.")
     private String customerPhone;
 
     private String customerZipcode;

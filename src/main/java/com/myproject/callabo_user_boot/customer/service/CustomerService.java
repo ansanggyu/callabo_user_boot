@@ -249,5 +249,23 @@ public class CustomerService {
         return count > 0; // 좋아요 상태가 존재하면 true 반환
     }
 
+    public List<CustomerDTO> getCustomer(String customerId) {
+        log.info("Fetching customer data for ID: {}", customerId);
+
+        // DB 조회
+        CustomerEntity customerEntity = customerRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found for ID: " + customerId));
+
+        // DTO로 매핑
+        CustomerDTO customerDTO = CustomerDTO.builder()
+                .customerPhone(customerEntity.getCustomerPhone())
+                .customerAddr(customerEntity.getCustomerAddr())
+                .customerAddrDetail(customerEntity.getCustomerAddrDetail())
+                .customerZipcode(customerEntity.getCustomerZipcode())
+                .build();
+
+        return List.of(customerDTO); // 단일 결과를 리스트로 반환
+    }
+
 }
 
