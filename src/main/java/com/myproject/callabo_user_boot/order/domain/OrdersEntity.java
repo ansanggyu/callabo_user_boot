@@ -43,7 +43,7 @@ public class OrdersEntity extends BasicEntity {
     private String customerAddress;
 
     @Column(name = "customer_addr_detail")
-    private String customerAddrDetail;
+    private String customerAddrDetail = "";
 
     @Column(name = "recipient_name", nullable = false)
     private String recipientName;

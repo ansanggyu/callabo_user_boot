@@ -25,8 +25,10 @@ public class ProductController {
     }
 
     // 상품 상세 조회
-    @GetMapping("/detail/{productNo}")
-    public ResponseEntity<ProductDetailDTO> getProductDetail(@PathVariable("productNo") Long productNo){
+    @GetMapping("{creatorId}/detail/{productNo}")
+    public ResponseEntity<ProductDetailDTO> getProductDetail(@PathVariable("creatorId") String creatorId, @PathVariable("productNo") Long productNo){
+
+        log.info("Creator ID: {}, Product No: {}", creatorId, productNo);
 
         return ResponseEntity.ok(productService.readProductDetail(productNo));
     }

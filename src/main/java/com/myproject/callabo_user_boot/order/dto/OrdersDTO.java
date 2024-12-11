@@ -13,7 +13,7 @@ public class OrdersDTO {
     private String recipientPhone;
     private String customerAddress;
     private String customerAddrDetail;
-    private int totalAmount;  // 총 수량
-    private int totalPrice;   // 총 가격
+    private Integer totalAmount;  // 총 수량
+    private Integer totalPrice;   // 총 가격
     private List<OrderItemDTO> items;
 }

@@ -150,7 +150,7 @@ public class CustomerService {
                 SELECT pl, p, pi
                 FROM ProductLikeEntity pl
                 JOIN pl.productEntity p
-                LEFT JOIN p.productImages pi ON pi.productImageOrd = 1
+                LEFT JOIN p.productImages pi ON pi.productImageOrd = 0
                 WHERE pl.customerEntity.customerId = :customerId AND pl.likeStatus = true
                 """;
 
@@ -163,7 +163,7 @@ public class CustomerService {
                 .map(row -> LikedProductDTO.builder()
                         .productId(((ProductEntity) row[1]).getProductNo())
                         .productName(((ProductEntity) row[1]).getProductName())
-                        .productImageUrl(row[2] != null ? ((ProductImageEntity) row[2]).getProductImageUrl() : null)
+                        .productImageUrl(((ProductImageEntity) row[2]) != null ? ((ProductImageEntity) row[2]).getProductImageUrl() : null)
                         .productPrice(((ProductEntity) row[1]).getProductPrice())
                         .build())
                 .toList();
@@ -191,13 +191,12 @@ public class CustomerService {
         return results.stream()
                 .map(row -> LikedCreatorDTO.builder()
                         .creatorId((String) row[0])
-                        .profileImg((String) row[1])
+                        .profileImg((String) row[1]) // logoImg를 profileImg에 매핑
                         .name((String) row[2])
-                        .likes(((Long) row[3]).intValue())
-                        .build())
-                .toList();
+                        .likes(((Long) row[3]).intValue()) // COUNT 결과를 정수로 변환
+                        .build()
+                ).toList();
     }
-
     public void toggleProductLike(ProductLikeDTO productLikeDTO) {
         String jpql = """
             SELECT pl
@@ -210,7 +209,6 @@ public class CustomerService {
                 .setParameter("customerId", productLikeDTO.getCustomerId())
                 .setParameter("productId", Long.parseLong(productLikeDTO.getProductId()))
                 .getResultList();
-
         if (!existingLikes.isEmpty()) {
             // 기존 좋아요 상태 업데이트
             ProductLikeEntity likeEntity = existingLikes.get(0);
@@ -220,11 +218,9 @@ public class CustomerService {
             // ProductEntity와 CustomerEntity 조회
             ProductEntity productEntity = entityManager.find(ProductEntity.class, Long.parseLong(productLikeDTO.getProductId()));
             CustomerEntity customerEntity = entityManager.find(CustomerEntity.class, productLikeDTO.getCustomerId());
-
             if (productEntity == null || customerEntity == null) {
                 throw new IllegalArgumentException("해당 Product 또는 Customer가 존재하지 않습니다.");
             }
-
             // 새로운 ProductLikeEntity 생성 및 저장
             ProductLikeEntity newLikeEntity = new ProductLikeEntity();
             newLikeEntity.setProductEntity(productEntity);

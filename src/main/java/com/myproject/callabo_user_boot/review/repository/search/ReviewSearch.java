@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface ReviewSearch {
     List<ReviewListDTO> reviewListByCreator(String creatorId);
+
+    List<ReviewListDTO> reviewListByProduct(Long productNo);
 }
