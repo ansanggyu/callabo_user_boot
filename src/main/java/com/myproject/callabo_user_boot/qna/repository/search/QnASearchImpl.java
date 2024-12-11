@@ -1,6 +1,5 @@
 package com.myproject.callabo_user_boot.qna.repository.search;
 
-import com.myproject.callabo_user_boot.customer.domain.QCustomerEntity;
 import com.myproject.callabo_user_boot.qna.domain.QQnAEntity;
 import com.myproject.callabo_user_boot.qna.domain.QnAEntity;
 import com.myproject.callabo_user_boot.qna.dto.QnAListDTO;
@@ -19,8 +18,7 @@ public class QnASearchImpl extends QuerydslRepositorySupport implements QnASearc
     public QnASearchImpl() {super(QnAEntity.class);}
 
     @Override
-    public List<QnAListDTO> QnAList(Long qnaNo) {
-
+    public List<QnAListDTO> QnAList(Long qnaNo, String customerId) {
         QQnAEntity qna = QQnAEntity.qnAEntity;
 
         JPQLQuery<QnAListDTO> query = from(qna)
@@ -28,11 +26,14 @@ public class QnASearchImpl extends QuerydslRepositorySupport implements QnASearc
                         qna.qnaNo,
                         qna.question,
                         qna.createdAt
-                        ));
+                ));
 
-        // 조건 추가 (qnaNo가 null 아닐 경우)
+        // 조건 추가 (qnaNo와 customerId로 필터링)
         if (qnaNo != null) {
             query.where(qna.qnaNo.eq(qnaNo));
+        }
+        if (customerId != null) {
+            query.where(qna.customerEntity.customerId.eq(customerId));
         }
 
         // 정렬 추가 (createdAt 내림차순)

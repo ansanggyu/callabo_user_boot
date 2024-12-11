@@ -156,4 +156,18 @@ public class CustomerController {
         }
     }
 
+    @GetMapping("/like/status")
+    public ResponseEntity<Boolean> checkLikeStatus(
+            @RequestParam("customerId") String customerId,
+            @RequestParam("productId") Long productId) {
+        try {
+            boolean isLiked = customerService.checkProductLikeStatus(customerId, productId);
+            return ResponseEntity.ok(isLiked);
+        } catch (Exception e) {
+            log.error("좋아요 상태 확인 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 }
