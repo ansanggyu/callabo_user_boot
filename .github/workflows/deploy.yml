@@ -1,0 +1,32 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main  # master 브랜치에 푸시될 때 실행
+
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: EC2_SSH_KEY  # GitHub Environment 지정
+
+    steps:
+      # 1. GitHub 리포지토리 체크아웃
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. SSH 에이전트 설정
+      - name: Set up SSH connection
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      # 3. EC2에 접속하여 배포 작업 수행
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@3.34.51.19 \
+          "cd /home/ec2-user/callabo_boot/callabo_user_boot && \
+          git pull origin main && \
+          docker-compose down && \
+          docker-compose up -d --build"

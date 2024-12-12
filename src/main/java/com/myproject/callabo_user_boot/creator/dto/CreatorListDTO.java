@@ -14,4 +14,6 @@ public class CreatorListDTO {
     private String logoImg;
 
     private Boolean followStatus;
+
+    private Long followerCount;
 }

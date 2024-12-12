@@ -7,5 +7,5 @@ import java.util.List;
 public interface CreatorSearch {
 
     // 제작자 리스트
-    List<CreatorListDTO> getCreatorsWithFollowStatus(String customerId);
+    List<CreatorListDTO> getCreatorList();
 }
