@@ -29,6 +29,7 @@ public class ProductSearchImpl extends QuerydslRepositorySupport implements Prod
         JPQLQuery<ProductListDTO> query = from(product)
                 .leftJoin(image).on(image.productEntity.eq(product))
                 .leftJoin(creator).on(product.creatorEntity.eq(creator))
+                .where(product.productStatus.eq("1"))
                 .select(Projections.bean(ProductListDTO.class,
                         product.productNo,
                         product.productName,
