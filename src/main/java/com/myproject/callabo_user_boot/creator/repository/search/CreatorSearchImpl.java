@@ -44,7 +44,8 @@ public class CreatorSearchImpl extends QuerydslRepositorySupport implements Crea
                         creator.logoImg,
                         follow.followStatus.coalesce(false).as("followStatus"), // followStatus 없으면 false
                         Expressions.as(followerCountSubquery, "followerCount") // 팔로워 수 계산 결과를 followerCount로 매핑
-                ));
+                ))
+                .groupBy(creator.creatorId);
 
         return query.fetch();
     }
