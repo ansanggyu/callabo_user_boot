@@ -2,6 +2,7 @@ package com.myproject.callabo_user_boot.product.controller;
 
 import com.myproject.callabo_user_boot.product.dto.ProductDetailDTO;
 import com.myproject.callabo_user_boot.product.dto.ProductListDTO;
+import com.myproject.callabo_user_boot.product.dto.ProductOrderRankingDTO;
 import com.myproject.callabo_user_boot.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -33,4 +34,9 @@ public class ProductController {
         return ResponseEntity.ok(productService.readProductDetail(productNo));
     }
 
+    @GetMapping("/ranking")
+    public ResponseEntity<List<ProductOrderRankingDTO>> getTopOrderedProducts() {
+        List<ProductOrderRankingDTO> topProducts = productService.getTopOrderedProducts();
+        return ResponseEntity.ok(topProducts);
+    }
 }
