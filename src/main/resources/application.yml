@@ -1,6 +1,6 @@
 spring:
   application:
-    name: collabo_creator_boot
+    name: callabo_user_boot
   datasource:
     driver-class-name: ${DB_DRIVER_CLASS_NAME}
     url: ${DB_URL}

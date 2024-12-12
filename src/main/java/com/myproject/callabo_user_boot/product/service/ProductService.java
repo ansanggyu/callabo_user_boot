@@ -1,11 +1,14 @@
 package com.myproject.callabo_user_boot.product.service;
 
 import com.myproject.callabo_user_boot.category.domain.CategoryEntity;
+import com.myproject.callabo_user_boot.order.domain.OrderItemEntity;
+import com.myproject.callabo_user_boot.order.repository.OrderItemRepository;
 import com.myproject.callabo_user_boot.product.domain.ProductEntity;
 import com.myproject.callabo_user_boot.product.domain.ProductImageEntity;
 import com.myproject.callabo_user_boot.product.dto.ProductDetailDTO;
 import com.myproject.callabo_user_boot.product.dto.ProductImageDTO;
 import com.myproject.callabo_user_boot.product.dto.ProductListDTO;
+import com.myproject.callabo_user_boot.product.dto.ProductOrderRankingDTO;
 import com.myproject.callabo_user_boot.product.repository.ProductRepository;
 import com.myproject.callabo_user_boot.review.domain.ReviewEntity;
 import com.myproject.callabo_user_boot.review.domain.ReviewImageEntity;
@@ -14,6 +17,7 @@ import com.myproject.callabo_user_boot.review.dto.ReviewReadDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,6 +33,7 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final OrderItemRepository orderItemRepository;
 
     // 상품 리스트
     public List<ProductListDTO> getProductList(String creatorId) {
@@ -100,5 +105,11 @@ public class ProductService {
                     .collect(Collectors.toList()))
                 .reviews(new ArrayList<>(reviewMap.values())) // 리뷰 리스트 매핑
                 .build();
+    }
+
+    public List<ProductOrderRankingDTO> getTopOrderedProducts() {
+        // Repository에서 주문 수량 기준 상위 10개 상품 가져오기
+        PageRequest pageRequest = PageRequest.of(0, 12); // 0페이지부터 10개
+        return orderItemRepository.findTop10ByOrderQuantity(pageRequest).getContent();
     }
 }

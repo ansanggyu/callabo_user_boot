@@ -51,11 +51,4 @@ public class ProductEntity extends BasicEntity {
     @OneToMany(mappedBy = "productEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImageEntity> productImages = new ArrayList<>();
 
-    public void addProductImage(ProductImageEntity productImage) {
-        if (productImages == null) {
-            productImages = new ArrayList<>();
-        }
-        productImages.add(productImage);
-        productImage.linkToProduct(this);
-    }
 }

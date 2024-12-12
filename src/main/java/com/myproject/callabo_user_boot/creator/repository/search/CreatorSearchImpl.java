@@ -19,7 +19,7 @@ public class CreatorSearchImpl extends QuerydslRepositorySupport implements Crea
     public CreatorSearchImpl() {super(CreatorEntity.class);}
 
     @Override
-    public List<CreatorListDTO> getCreatorsWithFollowStatus(String customerId) {
+    public List<CreatorListDTO> getCreatorList() {
 
         QCreatorEntity creator = QCreatorEntity.creatorEntity;
         QCreatorFollowEntity follow = QCreatorFollowEntity.creatorFollowEntity;
@@ -35,7 +35,6 @@ public class CreatorSearchImpl extends QuerydslRepositorySupport implements Crea
         JPQLQuery<CreatorListDTO> query = from(creator)
                 .leftJoin(follow).on(
                         follow.creatorEntity.eq(creator)
-                                .and(follow.customerEntity.customerId.eq(customerId))
                 )
                 .select(Projections.bean(
                         CreatorListDTO.class,
@@ -45,7 +44,8 @@ public class CreatorSearchImpl extends QuerydslRepositorySupport implements Crea
                         creator.logoImg,
                         follow.followStatus.coalesce(false).as("followStatus"), // followStatus 없으면 false
                         Expressions.as(followerCountSubquery, "followerCount") // 팔로워 수 계산 결과를 followerCount로 매핑
-                ));
+                ))
+                .groupBy(creator.creatorId);
 
         return query.fetch();
     }

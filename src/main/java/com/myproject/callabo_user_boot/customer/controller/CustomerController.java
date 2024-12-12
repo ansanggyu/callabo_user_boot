@@ -63,17 +63,17 @@ public class CustomerController {
     @PostMapping(value = "kakao/refreshToken", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TokenResponseDTO> kakaorefreshToken(@RequestHeader("Authorization") String accessToken, String refreshToken) {
         // accessToken 또는 refreshToken이 없으면 예외를 던짐
-        if(accessToken == null || refreshToken == null) {
+        if (accessToken == null || refreshToken == null) {
             throw CustomerException.TOKEN_NOT_ENOUGH.get();
         }
         // accessToken이 "Bearer "로 시작하지 않는 경우 예외를 던짐
-        if(!accessToken.startsWith("Bearer ")) {
+        if (!accessToken.startsWith("Bearer ")) {
             throw CustomerException.ACCESSTOKEN_TOO_SHORT.get();
         }
         // Bearer 부분을 제거한 access token 문자열을 추출
         String accessTokenStr = accessToken.substring("Bearer ".length());
         //AccessToken의 만료 여부 체크
-        try{
+        try {
             Map<String, Object> payload = jwtUtil.validateToken(accessTokenStr);
             // 유효한 경우 이메일 정보를 가져와 응답에 포함
             String email = payload.get("email").toString();
@@ -86,10 +86,10 @@ public class CustomerController {
             tokenResponseDTO.setCustomerProfileImage(profileImage);
             tokenResponseDTO.setCustomerName(name);
             return ResponseEntity.ok(tokenResponseDTO);
-        }catch (ExpiredJwtException ex) {
+        } catch (ExpiredJwtException ex) {
             // AccessToken이 만료된 경우
             // RefreshToken의 만료 여부를 확인
-            try{
+            try {
                 Map<String, Object> payload = jwtUtil.validateToken(refreshToken);
                 String email = payload.get("email").toString();
                 String name = payload.get("name").toString();
@@ -97,10 +97,10 @@ public class CustomerController {
                 String newAccessToken = null;
                 String newRefreshToken = null;
                 // alwaysNew 설정에 따라 새 토큰을 생성할지 결정
-                if(alwaysNew) {
+                if (alwaysNew) {
                     Map<String, Object> claimMap = Map.of("email", email);
-                    newAccessToken = jwtUtil.createToken(claimMap,accessTime);
-                    newRefreshToken = jwtUtil.createToken(claimMap,refreshTime);
+                    newAccessToken = jwtUtil.createToken(claimMap, accessTime);
+                    newRefreshToken = jwtUtil.createToken(claimMap, refreshTime);
                 }
                 // 새로 생성된 토큰 정보를 응답에 포함
                 TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
@@ -110,7 +110,7 @@ public class CustomerController {
                 tokenResponseDTO.setCustomerName(name);
                 tokenResponseDTO.setCustomerProfileImage(profileImage);
                 return ResponseEntity.ok(new TokenResponseDTO());
-            }catch (ExpiredJwtException ex2) {
+            } catch (ExpiredJwtException ex2) {
                 // RefreshToken 마저 만료된 경우, 재로그인이 필요함을 예외로 던짐
                 throw CustomerException.REQUIRE_SIGH_IN.get();
             }
@@ -140,7 +140,7 @@ public class CustomerController {
 
     // 사용자 정보 업데이트
     @PutMapping("/{customerId}")
-    public ResponseEntity<Void> updateCustomer( @PathVariable String customerId, @RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<Void> updateCustomer(@PathVariable String customerId, @RequestBody CustomerDTO customerDTO) {
         customerService.updateCustomer(customerId, customerDTO);
         return ResponseEntity.ok().build();
     }
@@ -165,6 +165,23 @@ public class CustomerController {
             return ResponseEntity.ok(isLiked);
         } catch (Exception e) {
             log.error("좋아요 상태 확인 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/account")
+    public ResponseEntity<List<CustomerDTO>> getCustomer(
+            @RequestParam("customerId") String customerId) {
+        log.info("Received request for customer account details: {}", customerId);
+
+        try {
+            List<CustomerDTO> customers = customerService.getCustomer(customerId);
+            return ResponseEntity.ok(customers);
+        } catch (IllegalArgumentException e) {
+            log.error("Customer not found: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of());
+        } catch (Exception e) {
+            log.error("Internal server error: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

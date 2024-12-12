@@ -21,8 +21,8 @@ public class CreatorController {
 
     // 제작자 리스트
     @GetMapping("/list")
-    public ResponseEntity<List<CreatorListDTO>> getCreatorList(@RequestParam String customerId) {
-        List<CreatorListDTO> creators = creatorService.getCreatorsWithFollowStatus(customerId);
+    public ResponseEntity<List<CreatorListDTO>> getCreatorList() {
+        List<CreatorListDTO> creators = creatorService.getCreatorList();
         return ResponseEntity.ok(creators);
     }
 

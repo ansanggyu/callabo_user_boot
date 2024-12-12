@@ -23,8 +23,8 @@ public class CreatorService {
     private final CreatorRepository creatorRepository;
     private final EntityManager entityManager;
 
-    public List<CreatorListDTO> getCreatorsWithFollowStatus(String customerId) {
-        return creatorRepository.getCreatorsWithFollowStatus(customerId);
+    public List<CreatorListDTO> getCreatorList() {
+        return creatorRepository.getCreatorList();
     }
 
     @Transactional
