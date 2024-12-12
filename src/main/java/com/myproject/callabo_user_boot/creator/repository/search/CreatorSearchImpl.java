@@ -5,6 +5,8 @@ import com.myproject.callabo_user_boot.creator.domain.QCreatorEntity;
 import com.myproject.callabo_user_boot.creator.dto.CreatorListDTO;
 import com.myproject.callabo_user_boot.customer.domain.QCreatorFollowEntity;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
@@ -22,7 +24,14 @@ public class CreatorSearchImpl extends QuerydslRepositorySupport implements Crea
         QCreatorEntity creator = QCreatorEntity.creatorEntity;
         QCreatorFollowEntity follow = QCreatorFollowEntity.creatorFollowEntity;
 
-        // JPQL Query 생성
+        // 팔로워 수를 계산하는 서브쿼리
+        JPQLQuery<Long> followerCountSubquery = JPAExpressions
+                .select(follow.count())
+                .from(follow)
+                .where(follow.creatorEntity.eq(creator)
+                        .and(follow.followStatus.isTrue()));
+
+        // 메인 쿼리
         JPQLQuery<CreatorListDTO> query = from(creator)
                 .leftJoin(follow).on(
                         follow.creatorEntity.eq(creator)
@@ -34,7 +43,8 @@ public class CreatorSearchImpl extends QuerydslRepositorySupport implements Crea
                         creator.creatorName,
                         creator.backgroundImg,
                         creator.logoImg,
-                        follow.followStatus.coalesce(false).as("followStatus") // followStatus 없으면 false
+                        follow.followStatus.coalesce(false).as("followStatus"), // followStatus 없으면 false
+                        Expressions.as(followerCountSubquery, "followerCount") // 팔로워 수 계산 결과를 followerCount로 매핑
                 ));
 
         return query.fetch();
