@@ -49,7 +49,10 @@ public class CustomSecurityConfig {
 
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 
-        corsConfiguration.setAllowedOriginPatterns(List.of("https://www.ozcoding.store"));
+        corsConfiguration.setAllowedOriginPatterns(List.of(
+                "https://www.ozcoding.store",
+                "http://localhost:5173"
+        ));
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
         corsConfiguration.setAllowCredentials(true);
