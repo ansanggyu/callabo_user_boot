@@ -8,4 +8,6 @@ public interface ReviewSearch {
     List<ReviewListDTO> reviewListByCreator(String creatorId);
 
     List<ReviewListDTO> reviewListByProduct(Long productNo);
+
+    List<ReviewListDTO> reviewListByCustomer(String customerId);
 }

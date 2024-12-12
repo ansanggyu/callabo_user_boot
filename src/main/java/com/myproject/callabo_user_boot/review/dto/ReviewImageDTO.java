@@ -15,5 +15,5 @@ public class ReviewImageDTO {
     private String reviewImageUrl;
 
     // 이미지 순서
-    private int reviewImageOrd;
+    private Integer reviewImageOrd;
 }

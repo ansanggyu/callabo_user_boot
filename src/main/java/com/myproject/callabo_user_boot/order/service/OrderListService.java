@@ -42,6 +42,7 @@ public class OrderListService {
         OrderListDTO orderDTO = new OrderListDTO();
         orderDTO.setOrderNo(ordersEntity.getOrderNo());
         orderDTO.setOrderDate(ordersEntity.getCreatedAt().toString());
+        orderDTO.setCreatorId(ordersEntity.getCreatorEntity().getCreatorId());
         orderDTO.setCreatorName(ordersEntity.getCreatorEntity().getCreatorName());
         orderDTO.setCustomerName(ordersEntity.getCustomerEntity().getCustomerName());
         orderDTO.setTotalAmount(ordersEntity.getTotalAmount());

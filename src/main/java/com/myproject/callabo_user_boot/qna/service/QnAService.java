@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.myproject.callabo_user_boot.qna.domain.QQnAEntity.qnAEntity;
-
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -45,11 +43,11 @@ public class QnAService {
         ProductEntity product = productRepository.findById(qnARegisterDTO.getProductNo())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        CreatorEntity creator = creatorRepository.findById(qnARegisterDTO.getCreatorId())
-                .orElseThrow(() -> new RuntimeException("Creator not found"));
-
         CustomerEntity customer = customerRepository.findById(qnARegisterDTO.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        CreatorEntity creator = creatorRepository.findById(qnARegisterDTO.getCreatorId())
+                .orElseThrow(() -> new RuntimeException("Creator not found"));
 
         // QnAEntity 생성
         QnAEntity qnaEntity = addQnAEntity(qnARegisterDTO, customer, product, creator);
@@ -60,6 +58,7 @@ public class QnAService {
                     .map(imageDto -> QnAImageEntity.builder()
                             .qnaEntity(qnaEntity) // 연관 관계 설정
                             .qnaImageUrl(imageDto.getQnaImageUrl()) // 업로드된 이미지 URL
+                            .qnaImageOrd(imageDto.getQnaImageOrd())
                             .build())
                     .collect(Collectors.toList());
 
@@ -78,8 +77,8 @@ public class QnAService {
         return QnAEntity.builder()
                 .question(dto.getQuestion())
                 .customerEntity(customer)
-                .productEntity(product)
                 .creatorEntity(creator)
+                .productEntity(product)
                 .build();
     }
 
@@ -110,9 +109,9 @@ public class QnAService {
     }
 
 
-    // qna 리스트
-    public List<QnAListDTO> getAllQnA(Long qnaNo) {
-        return qnARepository.QnAList(qnaNo);
+    public List<QnAListDTO> getAllQnAByCustomer(Long qnaNo, String customerId) {
+        log.info("QnA 리스트 요청: qnaNo={}, customerId={}", qnaNo, customerId);
+        return qnARepository.QnAList(qnaNo, customerId);
     }
 
     // qna 조회
@@ -129,7 +128,6 @@ public class QnAService {
                 .customerId(qnaEntity.getCustomerEntity().getCustomerId())
                 .qnaImages(qnaEntity.getQnAImages().stream()
                         .map(image -> QnAImageDTO.builder()
-                                .qnaImageNo(image.getQnaImageNo())
                                 .qnaImageOrd(image.getQnaImageOrd())
                                 .qnaImageUrl(image.getQnaImageUrl())
                                 .build())

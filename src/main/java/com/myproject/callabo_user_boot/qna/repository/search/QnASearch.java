@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface QnASearch {
 
-    List<QnAListDTO> QnAList(Long qnaNo);
+    List<QnAListDTO> QnAList(Long qnaNo, String customerId);
 }
