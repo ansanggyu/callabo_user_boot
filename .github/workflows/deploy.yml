@@ -25,7 +25,7 @@ jobs:
       # 3. EC2에 접속하여 배포 작업 수행
       - name: Deploy to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@3.34.51.19 \
+          ssh -o StrictHostKeyChecking=no ec2-user@3.36.59.224 \
           "cd /home/ec2-user/callabo_boot/callabo_user_boot && \
           git pull origin main && \
           docker-compose down && \
